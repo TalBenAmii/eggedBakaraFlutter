@@ -196,33 +196,31 @@ class _DataScreenState extends State<DataScreen>
               elevation: 12.0,
               child: Column(children: <Widget>[
                 Expanded(
-                  child: IntrinsicHeight(
-                    child: Column(
-                      children: [
-                        Data(_userData),
-                        Spacer(),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.green,
-                            onPrimary: Colors.white,
-                            shadowColor: Colors.greenAccent,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(15),
-                                    topLeft: Radius.circular(15))),
-                            minimumSize: Size(1, 40), //////// HERE
-                          ),
-                          onPressed: () {
-                            _openOptions(context);
-                          },
-                          child: Icon(
-                            Icons.arrow_drop_up_rounded,
-                            size: 40,
-                          ),
-                        )
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      Data(_userData),
+                      Spacer(),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          onPrimary: Colors.white,
+                          shadowColor: Colors.greenAccent,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(15),
+                                  topLeft: Radius.circular(15))),
+                          minimumSize: Size(1, 40), //////// HERE
+                        ),
+                        onPressed: () {
+                          _openOptions(context);
+                        },
+                        child: Icon(
+                          Icons.arrow_drop_up_rounded,
+                          size: 40,
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ]),

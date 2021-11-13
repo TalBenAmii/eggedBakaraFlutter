@@ -89,6 +89,8 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
   List<DateTime> _days = [];
   DateTime _selectedDate;
 
+  bool initDay = true;
+
   String get _locale =>
       widget.locale ?? Localizations.localeOf(context).languageCode;
 
@@ -154,15 +156,21 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
           return Row(
             children: <Widget>[
               _DayItem(
+                initDay: initDay,
                 isSelected: _daySelectedIndex == index,
                 dayNumber: currentDay.day,
                 shortName: shortName,
-                onTap: () => _goToActualDay(index),
+                onTap: () {
+                  initDay = false;
+                  _goToActualDay(index);
+                },
                 available: widget.selectableDayPredicate == null
                     ? true
                     : widget.selectableDayPredicate(currentDay),
                 dayColor: widget.dayColor,
-                activeDayColor: widget.activeDayColor,
+                activeDayColor: initDay
+                    ? Theme.of(context).primaryColor
+                    : widget.activeDayColor,
                 activeDayBackgroundColor: widget.activeBackgroundDayColor,
                 dotsColor: widget.dotsColor,
                 dayNameColor: widget.dayNameColor,
@@ -230,7 +238,9 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
                 MonthName(
                   isSelected: _monthSelectedIndex == index,
                   name: monthName,
-                  onTap: () => _goToActualMonth(index),
+                  onTap: () {
+                    _goToActualMonth(index);
+                  },
                   color: widget.monthColor,
                 ),
                 if (index == _months.length - 1)
@@ -491,7 +501,6 @@ class MonthName extends StatelessWidget {
   final Function onTap;
   final bool isSelected;
   final Color color;
-
   MonthName({this.name, this.onTap, this.isSelected, this.color});
 
   @override
@@ -502,7 +511,9 @@ class MonthName extends StatelessWidget {
         this.name.toUpperCase(),
         style: TextStyle(
           fontSize: this.isSelected ? 26 : 18,
-          color: color ?? Colors.black87,
+          color: this.isSelected
+              ? Theme.of(context).accentColor
+              : color ?? Colors.black87,
           fontWeight: this.isSelected ? FontWeight.bold : FontWeight.w300,
         ),
       ),
@@ -522,20 +533,22 @@ class _DayItem extends StatelessWidget {
   final bool available;
   final Color dotsColor;
   final Color dayNameColor;
+  bool initDay;
 
-  const _DayItem({
-    Key key,
-    @required this.dayNumber,
-    @required this.shortName,
-    @required this.isSelected,
-    @required this.onTap,
-    this.dayColor,
-    this.activeDayColor,
-    this.activeDayBackgroundColor,
-    this.available = true,
-    this.dotsColor,
-    this.dayNameColor,
-  }) : super(key: key);
+  _DayItem(
+      {Key key,
+      @required this.dayNumber,
+      @required this.shortName,
+      @required this.isSelected,
+      @required this.onTap,
+      this.dayColor,
+      this.activeDayColor,
+      this.activeDayBackgroundColor,
+      this.available = true,
+      this.dotsColor,
+      this.dayNameColor,
+      this.initDay})
+      : super(key: key);
 
   final double height = 70.0;
   final double width = 60.0;
@@ -562,8 +575,9 @@ class _DayItem extends StatelessWidget {
       child: Container(
         decoration: isSelected
             ? BoxDecoration(
-                color:
-                    activeDayBackgroundColor ?? Theme.of(context).accentColor,
+                color: initDay
+                    ? Colors.transparent
+                    : activeDayBackgroundColor ?? Theme.of(context).accentColor,
                 borderRadius: BorderRadius.circular(12.0),
               )
             : BoxDecoration(color: Colors.transparent),
@@ -571,7 +585,7 @@ class _DayItem extends StatelessWidget {
         width: width,
         child: Column(
           children: <Widget>[
-            if (isSelected) ...[
+            if (isSelected && initDay != true) ...[
               SizedBox(height: 7),
               _buildDots(),
               SizedBox(height: 12),
@@ -579,9 +593,16 @@ class _DayItem extends StatelessWidget {
               SizedBox(height: 14),
             Text(
               dayNumber.toString(),
-              style: isSelected ? selectedStyle : textStyle,
+              style: initDay && isSelected
+                  ? textStyle.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 35,
+                      color: Theme.of(context).accentColor)
+                  : isSelected
+                      ? selectedStyle
+                      : textStyle,
             ),
-            if (isSelected)
+            if (isSelected && initDay != true)
               Text(
                 shortName,
                 style: TextStyle(

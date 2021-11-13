@@ -23,10 +23,11 @@ class _DataState extends State<Data> {
     1,
     1,
   );
-
+  bool init;
   @override
   void initState() {
     super.initState();
+    init = true;
     initializeDateFormatting();
   }
 
@@ -128,12 +129,16 @@ class _DataState extends State<Data> {
     ];
     for (int i = from; i <= to; i++) {
       DateTime dateTime = DateTime(DateTime.now().year, i, 1);
-      final backgroundColor = dateTime.isAtSameMomentAs(_selectedMonth)
-          ? Colors.redAccent[200]
-          : Colors.transparent;
-      final textColor = dateTime.isAtSameMomentAs(_selectedMonth)
-          ? Colors.white
-          : Theme.of(context).primaryColor;
+      final backgroundColor = init
+          ? Colors.transparent
+          : dateTime.isAtSameMomentAs(_selectedMonth)
+              ? Colors.redAccent[200]
+              : Colors.transparent;
+      final textColor = init
+          ? Theme.of(context).primaryColor
+          : dateTime.isAtSameMomentAs(_selectedMonth)
+              ? Colors.white
+              : Theme.of(context).primaryColor;
       months.add(
         AnimatedSwitcher(
           duration: kThemeChangeDuration,
@@ -147,6 +152,7 @@ class _DataState extends State<Data> {
             key: ValueKey(backgroundColor),
             onPressed: () {
               setState(() {
+                init = false;
                 _selectedMonth = dateTime;
                 int monthlyBakarot = 0, monthlyTikufim = 0, monthlyKnasot = 0;
                 if (widget.userData.history[DateFormat.yMMMd().format(DateTime(
@@ -190,9 +196,9 @@ class _DataState extends State<Data> {
     return Directionality(
       textDirection: ui.TextDirection.ltr,
       child: CalendarTimeline(
-        showYears: true,
-        initialDate: DateTime(DateTime.now().year),
-        firstDate: DateTime(2021),
+        initialDate: DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day),
+        firstDate: DateTime(DateTime.now().year),
         lastDate: DateTime(DateTime.now().year + 1, 1, 0),
         onDateSelected: (date) {
           int monthlyBakarot = 0, monthlyTikufim = 0, monthlyKnasot = 0;

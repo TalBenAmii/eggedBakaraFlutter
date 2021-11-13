@@ -6,14 +6,12 @@ import 'package:flutter/services.dart';
 import 'screens/data_screen.dart';
 
 //todo: make countup animations + animations
-//todo: make stats screen
-//todo: make bolder month and year selection
+//todo: make year selection + fix year select (if isnt working)
 //todo: fix bottom button gap (navigator bar maybe)
 //todo: make a downarrow for every history section
 //todo: change stats screen icon
-//todo: make a listtile with icon in tikufim...
 //todo: make a nicer history that displays more details
-//todo: fix screen sizing
+//todo: fix screen sizing(learn responise app)
 //todo: make a swipe down for the stats
 
 void main() {
