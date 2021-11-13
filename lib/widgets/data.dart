@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 
-import 'package:calendar_timeline/calendar_timeline.dart';
+import 'package:egged_bakara/widgets/calender_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -29,7 +29,6 @@ class _DataState extends State<Data> {
     super.initState();
     initializeDateFormatting();
   }
-  
 
   void _showData(int monthlyBakarot, int monthlyTikufim, int monthlyKnasot,
       String chosen) {
@@ -98,9 +97,9 @@ class _DataState extends State<Data> {
 
   Widget _generateRow() {
     return SingleChildScrollView(
+      reverse: true,
       scrollDirection: Axis.horizontal,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: generateRowOfMonths(1, 12),
       ),
     );
@@ -122,7 +121,11 @@ class _DataState extends State<Data> {
       'דצמבר'
     ];
 
-    List<Widget> months = [];
+    List<Widget> months = [
+      SizedBox(
+        width: 10,
+      )
+    ];
     for (int i = from; i <= to; i++) {
       DateTime dateTime = DateTime(DateTime.now().year, i, 1);
       final backgroundColor = dateTime.isAtSameMomentAs(_selectedMonth)
@@ -180,16 +183,17 @@ class _DataState extends State<Data> {
         ),
       );
     }
-    return months;
+    return months.reversed.toList();
   }
 
   Widget _showDatePicker(MediaQueryData mediaQuery) {
     return Directionality(
       textDirection: ui.TextDirection.ltr,
       child: CalendarTimeline(
-        initialDate: DateTime(DateTime.now().year, DateTime.now().month),
-        firstDate: DateTime(DateTime.now().year),
-        lastDate: DateTime.now(),
+        showYears: true,
+        initialDate: DateTime(DateTime.now().year),
+        firstDate: DateTime(2021),
+        lastDate: DateTime(DateTime.now().year + 1, 1, 0),
         onDateSelected: (date) {
           int monthlyBakarot = 0, monthlyTikufim = 0, monthlyKnasot = 0;
           if (widget.userData.history[DateFormat.yMd().format(date)] != null) {
@@ -220,7 +224,7 @@ class _DataState extends State<Data> {
       LinearPercentIndicator(
         width: mediaQuery.size.width - 50,
         animation: true,
-        lineHeight: 50.0,
+        lineHeight: 30.0,
         animationDuration: 1500,
         percent: per,
         center: Text(
@@ -268,44 +272,50 @@ class _DataState extends State<Data> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        FittedBox(
-          child: Text(
-            'בקרות: ${widget.userData.monthlyBakarot}/${widget.userData.bakarotGoal}',
-            style: Theme.of(context).textTheme.headline4,
-          ),
-        ),
-        _sizedBox(0.007),
+        ListTile(
+            title: Text(
+              'בקרות: ${widget.userData.monthlyBakarot}/${widget.userData.bakarotGoal}',
+              style: Theme.of(context).textTheme.headline4,
+              textAlign: TextAlign.center,
+            ),
+            subtitle: Text(
+              'נותרו: ${widget.userData.bakarotGoal - widget.userData.monthlyBakarot}',
+              style: TextStyle(fontSize: 20),
+            )),
         _progressBar(mediaQuery, bakarotPer),
-        _sizedBox(0.007),
-        FittedBox(
-          child: Text(
+        ListTile(
+            title: Text(
               'תיקופים: ${widget.userData.monthlyTikufim}/${widget.userData.tikufimGoal}',
-              style: Theme.of(context).textTheme.headline4),
-        ),
-        _sizedBox(0.007),
+              style: Theme.of(context).textTheme.headline4,
+              textAlign: TextAlign.center,
+            ),
+            subtitle: Text(
+              'נותרו: ${widget.userData.tikufimGoal - widget.userData.monthlyTikufim}',
+              style: TextStyle(fontSize: 20),
+            )),
         _progressBar(mediaQuery, tikufimPer),
-        _sizedBox(0.007),
-        FittedBox(
-          child: Text(
+        ListTile(
+            title: Text(
               'קנסות: ${widget.userData.monthlyKnasot}/${widget.userData.knasotGoal}',
-              style: Theme.of(context).textTheme.headline4),
-        ),
-        _sizedBox(0.007),
+              style: Theme.of(context).textTheme.headline4,
+              textAlign: TextAlign.center,
+            ),
+            subtitle: Text(
+              'נותרו: ${widget.userData.knasotGoal - widget.userData.monthlyKnasot}',
+              style: TextStyle(fontSize: 20),
+            )),
         _progressBar(mediaQuery, knasotPer),
-        _sizedBox(0.007),
-        Text('היסטורית נתונים',
+        Text('הישגים חודשיים',
             style: Theme.of(context)
                 .textTheme
                 .headline1
                 .copyWith(decoration: TextDecoration.underline, fontSize: 30)),
         _generateRow(),
-        _sizedBox(0.007),
-        Divider(
-          height: mediaQuery.size.height * 0.01,
-          thickness: 5,
-          indent: 10,
-          endIndent: 10,
-        ),
+        Text('הישגים יומיים',
+            style: Theme.of(context)
+                .textTheme
+                .headline1
+                .copyWith(decoration: TextDecoration.underline, fontSize: 30)),
         _showDatePicker(mediaQuery),
       ],
     );
