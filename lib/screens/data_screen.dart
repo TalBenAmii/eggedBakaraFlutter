@@ -1,12 +1,14 @@
 import 'dart:convert';
 
-import 'package:date_util/date_util.dart';
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/widgets/add_data.dart';
 import 'package:egged_bakara/widgets/data.dart';
 import 'package:egged_bakara/widgets/my_dialog.dart';
 import 'package:egged_bakara/widgets/options.dart';
+import 'package:egged_bakara/widgets/stats.dart';
 import 'package:flutter/material.dart';
+import 'package:animated_icon_button/animated_icon_button.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DataScreen extends StatefulWidget {
@@ -18,18 +20,10 @@ class DataScreen extends StatefulWidget {
 
 class _DataScreenState extends State<DataScreen>
     with SingleTickerProviderStateMixin {
-  static const _PANEL_HEADER_HEIGHT = 410.0;
-  UserData _userData = UserData();
+  double _PANEL_HEADER_HEIGHT;
+  UserData _userData;
   AnimationController _controller;
   double width, height;
-  var dateUtility;
-  int daysLeft = 0;
-  double bakarotDarush = 0,
-      tikufimDarush = 0,
-      knasotDarush = 0,
-      bakarotYesh = 0,
-      tikufimYesh = 0,
-      knasotYesh = 0;
 
   bool get _isPanelVisible {
     final AnimationStatus status = _controller.status;
@@ -39,13 +33,8 @@ class _DataScreenState extends State<DataScreen>
 
   @override
   void initState() {
+    _userData = Provider.of<UserData>(context, listen: false);
     _loadData();
-    dateUtility = DateUtil();
-    daysLeft =
-        dateUtility.daysInMonth(DateTime.now().month, DateTime.now().year) -
-            DateTime.now().day +
-            1;
-
     _controller = AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
     super.initState();
@@ -67,115 +56,6 @@ class _DataScreenState extends State<DataScreen>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
   }
 
-  Widget buildTextBox(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Text(
-        text,
-        style: Theme.of(context)
-            .textTheme
-            .headline3
-            .copyWith(fontWeight: FontWeight.w300),
-      ),
-    );
-  }
-
-  Card buildCard() {
-    return Card(
-      color: Color(0xFFDEFFD3),
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            buildColumn('קצב דרוש', bakarotDarush, tikufimDarush, knasotDarush),
-            Container(
-                height: 120,
-                child: VerticalDivider(
-                  thickness: 3,
-                )),
-            buildColumn('קצב נוכחי', bakarotYesh, tikufimYesh, knasotYesh)
-          ],
-        ),
-      ),
-    );
-  }
-
-  Column buildColumn(
-      String text, double bakarot, double tikufim, double knasot) {
-    List<Widget> data = [];
-    data.add(
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Text(
-          text,
-          style: Theme.of(context).textTheme.headline3.copyWith(
-                decoration: TextDecoration.underline,
-                fontSize: 30,
-              ),
-        ),
-      ),
-    );
-    List<String> words = [
-      'בקרות: ${bakarot.toStringAsFixed(2)}',
-      'תיקופים: ${tikufim.toStringAsFixed(2)}',
-      'קנסות: ${knasot.toStringAsFixed(2)}'
-    ];
-    for (int i = 0; i < 3; i++) {
-      data.add(buildTextBox(words[i]));
-    }
-    data.add(
-      Padding(
-        padding: const EdgeInsets.only(right: 130),
-        child: Text(
-          'ליום',
-          style: Theme.of(context).textTheme.headline3.copyWith(
-              decoration: TextDecoration.underline,
-              fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: data,
-    );
-  }
-
-  List<Widget> buildData() {
-    List<Widget> data = [];
-    data.add(
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: RichText(
-            text: TextSpan(children: [
-          TextSpan(
-              text: 'נותרו ',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline3
-                  .copyWith(fontSize: 30, fontWeight: FontWeight.w400)),
-          TextSpan(
-              text: daysLeft.toString(),
-              style:
-                  Theme.of(context).textTheme.headline3.copyWith(fontSize: 30)),
-          TextSpan(
-              text: ' ימים לסוף החודש',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline3
-                  .copyWith(fontSize: 30, fontWeight: FontWeight.w400))
-        ])),
-      ),
-    );
-    data.add(SizedBox(
-      height: 7,
-    ));
-    data.add(buildCard());
-
-    return data;
-  }
-
   Widget _buildStack(BuildContext context, BoxConstraints constraints) {
     final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
     final ThemeData theme = Theme.of(context);
@@ -184,9 +64,7 @@ class _DataScreenState extends State<DataScreen>
       width: width,
       child: Stack(
         children: <Widget>[
-          Column(
-            children: buildData(),
-          ),
+          Stats(),
           PositionedTransition(
             rect: animation,
             child: Material(
@@ -198,28 +76,36 @@ class _DataScreenState extends State<DataScreen>
                 Expanded(
                   child: Column(
                     children: [
-                      Data(_userData),
+                      Data(),
                       Spacer(),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.green,
-                          onPrimary: Colors.white,
-                          shadowColor: Colors.greenAccent,
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(15),
-                                  topLeft: Radius.circular(15))),
-                          minimumSize: Size(1, 40), //////// HERE
+                      Container(
+                        alignment: Alignment.center,
+                        height: 35,
+                        width: 70,
+                        decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20.0))),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.green,
+                            onPrimary: Colors.white,
+                            shadowColor: Colors.greenAccent,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20))),
+                          ),
+                          onPressed: () {
+                            _openOptions(context);
+                          },
+                          child: Icon(
+                            Icons.arrow_drop_up_rounded,
+                            size: 40,
+                          ),
                         ),
-                        onPressed: () {
-                          _openOptions(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_drop_up_rounded,
-                          size: 40,
-                        ),
-                      )
+                        //add as many tabs as you want here
+                      ),
                     ],
                   ),
                 ),
@@ -262,7 +148,7 @@ class _DataScreenState extends State<DataScreen>
       SharedPreferences prefs = await SharedPreferences.getInstance();
       Map<String, dynamic> history = jsonDecode(prefs.getString("history"));
       Map<String, dynamic> data = jsonDecode(prefs.getString("data"));
-      _userData = UserData.fromJson(history, data);
+      _userData.fromJson(history, data);
       setState(() {});
     } catch (exception) {}
   }
@@ -285,27 +171,31 @@ class _DataScreenState extends State<DataScreen>
 
   @override
   Widget build(BuildContext context) {
-    bakarotDarush =
-        (_userData.bakarotGoal - _userData.monthlyBakarot) / daysLeft;
-    tikufimDarush =
-        (_userData.tikufimGoal - _userData.monthlyTikufim) / daysLeft;
-    knasotDarush = (_userData.knasotGoal - _userData.monthlyKnasot) / daysLeft;
-    bakarotYesh = _userData.monthlyBakarot / DateTime.now().day;
-    tikufimYesh = _userData.monthlyTikufim / DateTime.now().day;
-    knasotYesh = _userData.monthlyKnasot / DateTime.now().day;
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
+    _PANEL_HEADER_HEIGHT = height * 0.57;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
         title: Text("אגד בקרה"),
-        leading: IconButton(
-          onPressed: () {
-            _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
-          },
-          icon: AnimatedIcon(
-            icon: AnimatedIcons.close_menu,
-            progress: _controller.view,
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: AnimatedIconButton(
+            size: 30,
+            onPressed: () {
+              _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
+            },
+            duration: const Duration(milliseconds: 500),
+            splashColor: Colors.transparent,
+            icons: const <AnimatedIconItem>[
+              AnimatedIconItem(
+                icon: Icon(Icons.bar_chart),
+              ),
+              AnimatedIconItem(
+                icon: Icon(Icons.close),
+              ),
+            ],
           ),
         ),
       ),

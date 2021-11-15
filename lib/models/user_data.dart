@@ -1,7 +1,8 @@
 import 'package:date_util/date_util.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class UserData {
+class UserData with ChangeNotifier {
   int monthlyBakarot = 0,
       monthlyTikufim = 0,
       monthlyKnasot = 0,
@@ -77,7 +78,7 @@ class UserData {
     data['knasotGoal'] = knasotGoal;
   }
 
-  UserData.fromJson(Map<String, dynamic> json, Map<String, dynamic> data) {
+  void fromJson(Map<String, dynamic> json, Map<String, dynamic> data) {
     json.forEach((key, value) {
       history.putIfAbsent(key, () => value);
     });
