@@ -7,6 +7,7 @@ import 'package:egged_bakara/widgets/data.dart';
 import 'package:egged_bakara/widgets/my_dialog.dart';
 import 'package:egged_bakara/widgets/options.dart';
 import 'package:flutter/material.dart';
+import 'package:animated_icon_button/animated_icon_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DataScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class DataScreen extends StatefulWidget {
 
 class _DataScreenState extends State<DataScreen>
     with SingleTickerProviderStateMixin {
-  static const _PANEL_HEADER_HEIGHT = 410.0;
+  double _PANEL_HEADER_HEIGHT;
   UserData _userData = UserData();
   AnimationController _controller;
   double width, height;
@@ -80,12 +81,15 @@ class _DataScreenState extends State<DataScreen>
     );
   }
 
-  Card buildCard() {
-    return Card(
-      color: Color(0xFFDEFFD3),
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+  Widget buildCard() {
+    return Container(
+      decoration: BoxDecoration(
+          color: Color(0xFFDEFFD3),
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(15)),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -200,26 +204,34 @@ class _DataScreenState extends State<DataScreen>
                     children: [
                       Data(_userData),
                       Spacer(),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.green,
-                          onPrimary: Colors.white,
-                          shadowColor: Colors.greenAccent,
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(15),
-                                  topLeft: Radius.circular(15))),
-                          minimumSize: Size(1, 40), //////// HERE
+                      Container(
+                        alignment: Alignment.center,
+                        height: 35, //set your height here
+                        width: 70, //set your width here
+                        decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20.0))),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.green,
+                            onPrimary: Colors.white,
+                            shadowColor: Colors.greenAccent,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20))),
+                          ),
+                          onPressed: () {
+                            _openOptions(context);
+                          },
+                          child: Icon(
+                            Icons.arrow_drop_up_rounded,
+                            size: 40,
+                          ),
                         ),
-                        onPressed: () {
-                          _openOptions(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_drop_up_rounded,
-                          size: 40,
-                        ),
-                      )
+                        //add as many tabs as you want here
+                      ),
                     ],
                   ),
                 ),
@@ -295,17 +307,29 @@ class _DataScreenState extends State<DataScreen>
     knasotYesh = _userData.monthlyKnasot / DateTime.now().day;
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
+    _PANEL_HEADER_HEIGHT = height * 0.57;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
         title: Text("אגד בקרה"),
-        leading: IconButton(
-          onPressed: () {
-            _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
-          },
-          icon: AnimatedIcon(
-            icon: AnimatedIcons.close_menu,
-            progress: _controller.view,
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: AnimatedIconButton(
+            size: 30,
+            onPressed: () {
+              _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
+            },
+            duration: const Duration(milliseconds: 500),
+            splashColor: Colors.transparent,
+            icons: const <AnimatedIconItem>[
+              AnimatedIconItem(
+                icon: Icon(Icons.bar_chart),
+              ),
+              AnimatedIconItem(
+                icon: Icon(Icons.close),
+              ),
+            ],
           ),
         ),
       ),

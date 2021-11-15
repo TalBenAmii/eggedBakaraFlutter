@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:countup/countup.dart';
 import 'package:egged_bakara/widgets/calender_timeline.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
@@ -18,23 +19,16 @@ class Data extends StatefulWidget {
 }
 
 class _DataState extends State<Data> {
-  DateTime _selectedMonth = DateTime(
-    DateTime.now().year,
-    1,
-    1,
-  );
-  bool init;
-  @override
-  void initState() {
-    super.initState();
-    init = true;
-    initializeDateFormatting();
-  }
+  bool init = true;
+  bool initLoadData = true;
+  bool initDay = true;
+  int loadTime = 1500;
+  bool animate;
 
   void _showData(int monthlyBakarot, int monthlyTikufim, int monthlyKnasot,
-      String chosen) {
+      String chosen, bool monthGoal) {
     bool isHistory = true;
-
+    String append = monthGoal ? 'סה"כ' : '';
     if (monthlyBakarot == 0 && monthlyTikufim == 0 && monthlyKnasot == 0) {
       isHistory = false;
     }
@@ -56,10 +50,11 @@ class _DataState extends State<Data> {
                               fontSize: 50,
                               decoration: TextDecoration.underline),
                         ),
-                        Text(
-                          'אין הסטוריה',
-                          style: Theme.of(context).textTheme.headline4,
-                        )
+                        Text('אין הסטוריה',
+                            style:
+                                Theme.of(context).textTheme.headline4.copyWith(
+                                      fontSize: 45,
+                                    ))
                       ]
                     : [
                         Text(
@@ -69,22 +64,31 @@ class _DataState extends State<Data> {
                               decoration: TextDecoration.underline),
                         ),
                         Text(
-                          'בקרות: ' + monthlyBakarot.toString(),
-                          style: Theme.of(context).textTheme.headline4,
+                          '$append ביקורים: ' + monthlyBakarot.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              .copyWith(fontSize: 35),
                         ),
                         SizedBox(
                           height: 15,
                         ),
                         Text(
-                          'תיקופים: ' + monthlyTikufim.toString(),
-                          style: Theme.of(context).textTheme.headline4,
+                          '$append תיקופים: ' + monthlyTikufim.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              .copyWith(fontSize: 35),
                         ),
                         SizedBox(
                           height: 15,
                         ),
                         Text(
-                          'קנסות: ' + monthlyKnasot.toString(),
-                          style: Theme.of(context).textTheme.headline4,
+                          '$append קנסות: ' + monthlyKnasot.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              .copyWith(fontSize: 35),
                         ),
                         SizedBox(
                           height: 15,
@@ -96,17 +100,7 @@ class _DataState extends State<Data> {
         });
   }
 
-  Widget _generateRow() {
-    return SingleChildScrollView(
-      reverse: true,
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: generateRowOfMonths(1, 12),
-      ),
-    );
-  }
-
-  List<Widget> generateRowOfMonths(from, to) {
+  Widget buildCalender(bool monthGoal) {
     List<String> monthsName = [
       'ינואר',
       'פברואר',
@@ -121,87 +115,30 @@ class _DataState extends State<Data> {
       'נובמבר',
       'דצמבר'
     ];
+    return CalendarTimeline(
+      monthGoal: monthGoal,
+      history: widget.userData.history,
+      initialDate: DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day),
+      firstDate: DateTime(DateTime.now().year),
+      lastDate: DateTime(DateTime.now().year + 1, 1, 0),
+      onDateSelected: (date) {
+        int monthlyBakarot = 0, monthlyTikufim = 0, monthlyKnasot = 0;
 
-    List<Widget> months = [
-      SizedBox(
-        width: 10,
-      )
-    ];
-    for (int i = from; i <= to; i++) {
-      DateTime dateTime = DateTime(DateTime.now().year, i, 1);
-      final backgroundColor = init
-          ? Colors.transparent
-          : dateTime.isAtSameMomentAs(_selectedMonth)
-              ? Colors.redAccent[200]
-              : Colors.transparent;
-      final textColor = init
-          ? Theme.of(context).primaryColor
-          : dateTime.isAtSameMomentAs(_selectedMonth)
-              ? Colors.white
-              : Theme.of(context).primaryColor;
-      months.add(
-        AnimatedSwitcher(
-          duration: kThemeChangeDuration,
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-          child: TextButton(
-            key: ValueKey(backgroundColor),
-            onPressed: () {
-              setState(() {
-                init = false;
-                _selectedMonth = dateTime;
-                int monthlyBakarot = 0, monthlyTikufim = 0, monthlyKnasot = 0;
-                if (widget.userData.history[DateFormat.yMMMd().format(DateTime(
-                        _selectedMonth.year, _selectedMonth.month, 1))] !=
-                    null) {
-                  monthlyBakarot = widget.userData.history[DateFormat.yMMMd()
-                          .format(DateTime(
-                              _selectedMonth.year, _selectedMonth.month, 1))]
-                      ['monthlyBakarot'];
-                  monthlyTikufim = widget.userData.history[DateFormat.yMMMd()
-                          .format(DateTime(
-                              _selectedMonth.year, _selectedMonth.month, 1))]
-                      ['monthlyTikufim'];
-                  monthlyKnasot = widget.userData.history[DateFormat.yMMMd()
-                          .format(DateTime(
-                              _selectedMonth.year, _selectedMonth.month, 1))]
-                      ['monthlyKnasot'];
-                }
-                _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot,
-                    monthsName[dateTime.month - 1]);
-              });
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: backgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(50.0),
-              ),
-            ),
-            child: Text(
-              monthsName[i - 1],
-              style: TextStyle(fontSize: 26, color: textColor),
-            ),
-          ),
-        ),
-      );
-    }
-    return months.reversed.toList();
-  }
-
-  Widget _showDatePicker(MediaQueryData mediaQuery) {
-    return Directionality(
-      textDirection: ui.TextDirection.ltr,
-      child: CalendarTimeline(
-        initialDate: DateTime(
-            DateTime.now().year, DateTime.now().month, DateTime.now().day),
-        firstDate: DateTime(DateTime.now().year),
-        lastDate: DateTime(DateTime.now().year + 1, 1, 0),
-        onDateSelected: (date) {
-          int monthlyBakarot = 0, monthlyTikufim = 0, monthlyKnasot = 0;
+        if (monthGoal) {
+          if (widget.userData.history[DateFormat.yMMMd()
+                  .format(DateTime(date.year, date.month, 1))] !=
+              null) {
+            monthlyBakarot = widget.userData.history[DateFormat.yMMMd()
+                .format(DateTime(date.year, date.month, 1))]['monthlyBakarot'];
+            monthlyTikufim = widget.userData.history[DateFormat.yMMMd()
+                .format(DateTime(date.year, date.month, 1))]['monthlyTikufim'];
+            monthlyKnasot = widget.userData.history[DateFormat.yMMMd()
+                .format(DateTime(date.year, date.month, 1))]['monthlyKnasot'];
+          }
+          _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot,
+              monthsName[date.month - 1], true);
+        } else {
           if (widget.userData.history[DateFormat.yMd().format(date)] != null) {
             monthlyBakarot = widget.userData
                 .history[DateFormat.yMd().format(date)]['monthlyBakarot'];
@@ -211,17 +148,31 @@ class _DataState extends State<Data> {
                 .history[DateFormat.yMd().format(date)]['monthlyKnasot'];
           }
           _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot,
-              DateFormat('dd/MM/yyyy').format(date));
-        },
-        leftMargin: 20,
-        monthColor: Colors.green.shade700,
-        dayColor: Theme.of(context).primaryColor,
-        dayNameColor: Color(0xFF333A47),
-        activeDayColor: Colors.white,
-        activeBackgroundDayColor: Colors.redAccent[200],
-        dotsColor: Color(0xFF333A47),
-        locale: 'en_ISO',
-      ),
+              DateFormat('dd/MM/yyyy').format(date), false);
+        }
+      },
+      leftMargin: 20,
+      monthColor: Colors.green.shade700,
+      dayColor: Colors.green,
+      dayNameColor: Color(0xFF333A47),
+      activeDayColor: Colors.white,
+      activeBackgroundDayColor: Colors.redAccent[200],
+      dotsColor: Color(0xFF333A47),
+      locale: 'en_ISO',
+    );
+  }
+
+  Widget _generateRow() {
+    return Directionality(
+      textDirection: ui.TextDirection.ltr,
+      child: buildCalender(true),
+    );
+  }
+
+  Widget _showDatePicker(MediaQueryData mediaQuery) {
+    return Directionality(
+      textDirection: ui.TextDirection.ltr,
+      child: buildCalender(false),
     );
   }
 
@@ -231,7 +182,7 @@ class _DataState extends State<Data> {
         width: mediaQuery.size.width - 50,
         animation: true,
         lineHeight: 30.0,
-        animationDuration: 1500,
+        animationDuration: loadTime,
         percent: per,
         center: Text(
           (per * 100).toStringAsFixed(2) + '%',
@@ -243,10 +194,17 @@ class _DataState extends State<Data> {
     ]);
   }
 
-  Widget _sizedBox(double heightMultiplayer) {
-    final mediaQuery = MediaQuery.of(context);
-    return SizedBox(
-      height: mediaQuery.size.height * heightMultiplayer,
+  Countup countUpAnimation(double end, String prefix, String suffix) {
+    return Countup(
+      begin: 0,
+      prefix: prefix,
+      suffix: suffix,
+      end: end,
+      duration: Duration(seconds: loadTime ~/ 1000),
+      separator: ',',
+      style: TextStyle(
+        fontSize: 30,
+      ),
     );
   }
 
@@ -279,33 +237,36 @@ class _DataState extends State<Data> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ListTile(
-            title: Text(
-              'בקרות: ${widget.userData.monthlyBakarot}/${widget.userData.bakarotGoal}',
-              style: Theme.of(context).textTheme.headline4,
-              textAlign: TextAlign.center,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(Icons.directions_bus),
             ),
+            title: countUpAnimation(widget.userData.monthlyBakarot.toDouble(),
+                'בקרות: ', '/${widget.userData.bakarotGoal}'),
             subtitle: Text(
               'נותרו: ${widget.userData.bakarotGoal - widget.userData.monthlyBakarot}',
               style: TextStyle(fontSize: 20),
             )),
         _progressBar(mediaQuery, bakarotPer),
         ListTile(
-            title: Text(
-              'תיקופים: ${widget.userData.monthlyTikufim}/${widget.userData.tikufimGoal}',
-              style: Theme.of(context).textTheme.headline4,
-              textAlign: TextAlign.center,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(Icons.confirmation_num),
             ),
+            title: countUpAnimation(widget.userData.monthlyTikufim.toDouble(),
+                'בקרות: ', '/${widget.userData.tikufimGoal}'),
             subtitle: Text(
               'נותרו: ${widget.userData.tikufimGoal - widget.userData.monthlyTikufim}',
               style: TextStyle(fontSize: 20),
             )),
         _progressBar(mediaQuery, tikufimPer),
         ListTile(
-            title: Text(
-              'קנסות: ${widget.userData.monthlyKnasot}/${widget.userData.knasotGoal}',
-              style: Theme.of(context).textTheme.headline4,
-              textAlign: TextAlign.center,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(Icons.my_location),
             ),
+            title: countUpAnimation(widget.userData.monthlyKnasot.toDouble(),
+                'בקרות: ', '/${widget.userData.knasotGoal}'),
             subtitle: Text(
               'נותרו: ${widget.userData.knasotGoal - widget.userData.monthlyKnasot}',
               style: TextStyle(fontSize: 20),
