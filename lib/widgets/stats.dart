@@ -1,10 +1,43 @@
-import 'package:date_util/date_util.dart';
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Stats extends StatelessWidget {
-  const Stats({Key key}) : super(key: key);
+class Stats extends StatefulWidget {
+  Stats({Key key}) : super(key: key);
+
+  @override
+  State<Stats> createState() => _StatsState();
+}
+
+class _StatsState extends State<Stats> {
+  bool friday = false, saturday = false;
+
+  @override
+  void initState() {
+    _loadData();
+    super.initState();
+  }
+
+  void _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    friday = prefs.getBool("friday") ?? false;
+    saturday = prefs.getBool("saturday") ?? false;
+  }
+
+  void _updateData(bool value, bool isFriday) async {
+    setState(() {
+      if (isFriday) {
+        friday = value;
+      } else {
+        saturday = value;
+      }
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setBool("friday", friday);
+    prefs.setBool("saturday", saturday);
+  }
 
   Widget buildStatsText(String text, BuildContext context) {
     return Padding(
@@ -118,16 +151,63 @@ class Stats extends StatelessWidget {
     );
   }
 
+  Widget buildCheckBox(String text, bool isFriday) {
+    return Row(
+      children: [
+        Text(
+          text,
+          style: Theme.of(context).textTheme.headline3,
+        ),
+        Transform.scale(
+          scale: 1.2,
+          child: Checkbox(
+            checkColor: Theme.of(context).accentColor,
+            activeColor: Colors.white,
+            value: isFriday ? friday : saturday,
+            onChanged: (bool value) {
+              _updateData(value, isFriday);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildCheckBoxes() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          buildCheckBox('עובד בשישי?', true),
+          buildCheckBox('עובד בשבת?', false),
+        ],
+      ),
+    );
+  }
+
+  int getWorkingDays(DateTime from, DateTime to, bool friday, bool satuarday) {
+    int days = 0, daysFrom = from.day, daysTo = to.day;
+    for (int i = daysFrom; i < daysTo; i++) {
+      if ((DateTime(DateTime.now().year, DateTime.now().month, i).weekday !=
+                  DateTime.friday ||
+              friday) &&
+          (DateTime(DateTime.now().year, DateTime.now().month, i).weekday !=
+                  DateTime.saturday ||
+              saturday)) days++;
+    }
+    return days;
+  }
+
   @override
   Widget build(BuildContext context) {
     final _userData = Provider.of<UserData>(context, listen: false);
-
-    final dateUtility = DateUtil();
-
-    int daysLeft =
-        dateUtility.daysInMonth(DateTime.now().month, DateTime.now().year) -
-            DateTime.now().day +
-            1;
+    int daysLeft = getWorkingDays(
+            DateTime.now(),
+            DateTime(DateTime.now().year, DateTime.now().month + 1, 0),
+            friday,
+            saturday) +
+        1;
     final bakarotDarush =
         (_userData.bakarotGoal - _userData.monthlyBakarot) / daysLeft;
     final tikufimDarush =
@@ -145,6 +225,7 @@ class Stats extends StatelessWidget {
         ),
         buildStats(context, bakarotDarush, tikufimDarush, knasotDarush,
             bakarotYesh, tikufimYesh, knasotYesh),
+        buildCheckBoxes(),
       ],
     );
   }

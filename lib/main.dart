@@ -13,9 +13,7 @@ import 'screens/data_screen.dart';
 //todo: animations + slow visable on top
 //todo: fix screen sizing(learn responise app)
 //todo: make a swipe down for the stats
-//todo: add dividers and borders in data screen
 //todo: make a more detailed history
-//todo: make stats calc improvments(working days)
 //todo: fix renderflex when animatedContainer
 //todo: make double icon (stats and down arrow) in top of screen
 

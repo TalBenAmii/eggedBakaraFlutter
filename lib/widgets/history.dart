@@ -35,6 +35,13 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _monthController.dispose();
+    _dayContoller.dispose();
+    super.dispose();
+  }
+
   Widget buildCalender(bool monthGoal) {
     List<String> monthsName = [
       'ינואר',

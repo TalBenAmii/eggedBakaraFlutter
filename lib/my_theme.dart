@@ -18,7 +18,7 @@ class MyTheme {
       textTheme: screenWidth < 500 ? TEXT_THEME_SMALL : TEXT_THEME_DEFAULT,
       appBarTheme: AppBarTheme(
         titleTextStyle: TextStyle(
-          fontSize: 24,
+          fontSize: 30,
           fontWeight: FontWeight.bold,
         ),
       ),
