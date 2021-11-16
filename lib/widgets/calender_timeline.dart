@@ -616,14 +616,15 @@ class _DayItem extends StatelessWidget {
             : dayColor?.withOpacity(0.5) ??
                 Theme.of(context).accentColor.withOpacity(0.5),
         fontSize: 32,
-        fontWeight: FontWeight.normal);
+        fontWeight: FontWeight.normal,
+        height: 1.2);
     final selectedStyle = TextStyle(
         color: activeDayColor ?? Colors.white,
         fontSize: 32,
         fontWeight: FontWeight.bold,
         height: initDay && history[DateFormat.yMd().format(currentDate)] == null
             ? 1
-            : 0.8);
+            : 0.75);
 
     return GestureDetector(
       onTap: available ? onTap : null,
@@ -652,7 +653,7 @@ class _DayItem extends StatelessWidget {
               style: isSelected
                   ? selectedStyle
                   : history[DateFormat.yMd().format(currentDate)] != null
-                      ? textStyle.copyWith(height: 0.8)
+                      ? textStyle.copyWith(height: 0.75)
                       : textStyle,
             ),
             if (isSelected && initDay != true)

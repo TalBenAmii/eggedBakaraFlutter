@@ -8,13 +8,10 @@ class Stats extends StatelessWidget {
 
   Widget buildStatsText(String text, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Text(
-        text,
-        style: Theme.of(context)
-            .textTheme
-            .headline3
-            .copyWith(fontWeight: FontWeight.w300),
+        '• $text',
+        style: Theme.of(context).textTheme.headline4,
       ),
     );
   }
@@ -27,10 +24,10 @@ class Stats extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Text(
           text,
-          style: Theme.of(context).textTheme.headline3.copyWith(
-                decoration: TextDecoration.underline,
-                fontSize: 30,
-              ),
+          style: Theme.of(context)
+              .textTheme
+              .headline2
+              .copyWith(fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -47,9 +44,10 @@ class Stats extends StatelessWidget {
         padding: const EdgeInsets.only(right: 130),
         child: Text(
           'ליום',
-          style: Theme.of(context).textTheme.headline3.copyWith(
-              decoration: TextDecoration.underline,
-              fontWeight: FontWeight.bold),
+          style: Theme.of(context)
+              .textTheme
+              .headline3
+              .copyWith(fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -106,8 +104,10 @@ class Stats extends StatelessWidget {
                 .copyWith(fontSize: 30, fontWeight: FontWeight.w400)),
         TextSpan(
             text: daysLeft.toString(),
-            style:
-                Theme.of(context).textTheme.headline3.copyWith(fontSize: 30)),
+            style: Theme.of(context)
+                .textTheme
+                .headline3
+                .copyWith(fontSize: 30, fontWeight: FontWeight.bold)),
         TextSpan(
             text: ' ימים לסוף החודש',
             style: Theme.of(context)

@@ -12,12 +12,25 @@ class History extends StatefulWidget {
   _HistoryState createState() => _HistoryState();
 }
 
-class _HistoryState extends State<History> {
+class _HistoryState extends State<History> with TickerProviderStateMixin {
   UserData userData;
-  bool _daysSectionexpanded = false, _monthSectionexpanded = false;
+  bool dayExpanded = false, monthExpanded = false;
+  AnimationController _monthController, _dayContoller;
 
   @override
   void initState() {
+    _monthController = AnimationController(
+      vsync: this,
+      duration: Duration(
+        milliseconds: 300,
+      ),
+    );
+    _dayContoller = AnimationController(
+      vsync: this,
+      duration: Duration(
+        milliseconds: 300,
+      ),
+    );
     userData = Provider.of<UserData>(context, listen: false);
     super.initState();
   }
@@ -137,7 +150,7 @@ class _HistoryState extends State<History> {
                               decoration: TextDecoration.underline),
                         ),
                         Text(
-                          '$append ביקורים: ' + monthlyBakarot.toString(),
+                          '$append בקרות: ' + monthlyBakarot.toString(),
                           style: Theme.of(context)
                               .textTheme
                               .headline4
@@ -173,51 +186,111 @@ class _HistoryState extends State<History> {
         });
   }
 
+  void expandUnexpand(bool monthCalender) {
+    setState(() {
+      if (monthCalender) {
+        monthExpanded = !monthExpanded;
+        if (dayExpanded && monthExpanded) {
+          dayExpanded = !dayExpanded;
+          _dayContoller.reverse();
+        }
+        if (monthExpanded)
+          _monthController.forward();
+        else {
+          _monthController.reverse();
+        }
+        ;
+      } else {
+        dayExpanded = !dayExpanded;
+        if (dayExpanded && monthExpanded) {
+          monthExpanded = !monthExpanded;
+          _monthController.reverse();
+        }
+        if (dayExpanded)
+          _dayContoller.forward();
+        else {
+          _dayContoller.reverse();
+        }
+      }
+    });
+  }
+
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        (HistorySection(_generateMonthCalender, 'היסטורית חודשים', 50)),
-        HistorySection(_generateDayCalender, 'היסטורית ימים', 120)
-      ],
-    );
+    final _monthCalender = HistorySection(_generateMonthCalender,
+        'היסטורית חודשים', 50, expandUnexpand, monthExpanded, _monthController);
+    final _dayCalender = HistorySection(_generateDayCalender, 'היסטורית ימים',
+        115, expandUnexpand, dayExpanded, _dayContoller);
+
+    return Column(children: [_monthCalender, _dayCalender]);
   }
 }
 
-class HistorySection extends StatefulWidget {
-  const HistorySection(this.historySection, this.text, this.height, {Key key})
+class HistorySection extends StatelessWidget {
+  HistorySection(this.historySection, this.text, this.height,
+      this.expandedUnexpended, this.expanded, this.controller,
+      {Key key})
       : super(key: key);
   final Function historySection;
   final String text;
   final double height;
-  @override
-  _HistorySectionState createState() => _HistorySectionState();
-}
-
-class _HistorySectionState extends State<HistorySection> {
-  bool _expanded = false;
+  final Function expandedUnexpended;
+  final bool expanded;
+  final controller;
+  Animation<double> _opacityAnimation;
 
   @override
   Widget build(BuildContext context) {
+    _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Curves.easeIn,
+      ),
+    );
     return Column(children: [
-      ListTile(
-        title: Text(
-          widget.text,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        trailing: IconButton(
-          icon: _expanded ? Icon(Icons.expand_less) : Icon(Icons.expand_more),
-          onPressed: () {
-            setState(() {
-              _expanded = !_expanded;
-            });
+      Container(
+        margin: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.green.shade800.withAlpha(170)),
+            borderRadius: BorderRadius.circular(20)),
+        child: InkWell(
+          splashColor: Colors.green,
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            if (text == 'היסטורית חודשים')
+              expandedUnexpended(true);
+            else {
+              expandedUnexpended(false);
+            }
           },
+          child: ListTile(
+            title: Text(
+              text,
+              style: Theme.of(context).textTheme.headline2,
+            ),
+            trailing: IconButton(
+              color: Colors.green.shade800,
+              iconSize: 40,
+              splashColor: Colors.green,
+              splashRadius: 25,
+              icon:
+                  expanded ? Icon(Icons.expand_less) : Icon(Icons.expand_more),
+              onPressed: () {
+                if (text == 'היסטורית חודשים')
+                  expandedUnexpended(true);
+                else {
+                  expandedUnexpended(false);
+                }
+              },
+            ),
+          ),
         ),
       ),
-      if (_expanded)
-        Container(
-            height: widget.height,
-            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
-            child: widget.historySection())
+      AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          height: expanded ? height : 0,
+          margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+          child: FadeTransition(
+              opacity: _opacityAnimation, child: historySection())),
     ]);
   }
 }

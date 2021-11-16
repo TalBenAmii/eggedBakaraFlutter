@@ -1,11 +1,6 @@
-import 'dart:async';
-import 'dart:ui' as ui;
-
 import 'package:countup/countup.dart';
-import 'package:egged_bakara/widgets/calender_timeline.dart';
 import 'package:egged_bakara/widgets/history.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -23,8 +18,9 @@ class _DataState extends State<Data> {
   int loadTime = 1500;
   bool animate;
   UserData userData;
+  MediaQueryData mediaQuery;
 
-  Widget _progressBar(MediaQueryData mediaQuery, double per) {
+  Widget _progressBar(double per) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       LinearPercentIndicator(
         width: mediaQuery.size.width - 50,
@@ -34,7 +30,7 @@ class _DataState extends State<Data> {
         percent: per,
         center: Text(
           (per * 100).toStringAsFixed(2) + '%',
-          style: TextStyle(fontSize: 18),
+          style: Theme.of(context).textTheme.headline3,
         ),
         linearStrokeCap: LinearStrokeCap.roundAll,
         progressColor: Colors.green,
@@ -44,21 +40,43 @@ class _DataState extends State<Data> {
 
   Countup countUpAnimation(double end, String prefix, String suffix) {
     return Countup(
-      begin: 0,
-      prefix: prefix,
-      suffix: suffix,
-      end: end,
-      duration: Duration(seconds: loadTime ~/ 1000),
-      separator: ',',
-      style: TextStyle(
-        fontSize: 30,
+        begin: 0,
+        prefix: prefix,
+        suffix: suffix,
+        end: end,
+        duration: Duration(seconds: loadTime ~/ 1000),
+        separator: ',',
+        style: Theme.of(context).textTheme.headline1);
+  }
+
+  Widget buildDataTile(
+      IconData icon, String data, int current, int goal, double per) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      child: Column(
+        children: [
+          ListTile(
+              leading: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Icon(
+                  icon,
+                  color: Theme.of(context).accentColor,
+                ),
+              ),
+              title: countUpAnimation(current.toDouble(), '$data ', '/${goal}'),
+              subtitle: Text(
+                'נותרו: ${goal - current}',
+                style: TextStyle(fontSize: 24),
+              )),
+          _progressBar(per),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
+    mediaQuery = MediaQuery.of(context);
     userData = Provider.of<UserData>(context, listen: false);
     double bakarotPer = userData.bakarotGoal != 0
         ? userData.monthlyBakarot / userData.bakarotGoal
@@ -84,42 +102,12 @@ class _DataState extends State<Data> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ListTile(
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(Icons.directions_bus),
-            ),
-            title: countUpAnimation(userData.monthlyBakarot.toDouble(),
-                'בקרות: ', '/${userData.bakarotGoal}'),
-            subtitle: Text(
-              'נותרו: ${userData.bakarotGoal - userData.monthlyBakarot}',
-              style: TextStyle(fontSize: 24),
-            )),
-        _progressBar(mediaQuery, bakarotPer),
-        ListTile(
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(Icons.confirmation_num),
-            ),
-            title: countUpAnimation(userData.monthlyTikufim.toDouble(),
-                'בקרות: ', '/${userData.tikufimGoal}'),
-            subtitle: Text(
-              'נותרו: ${userData.tikufimGoal - userData.monthlyTikufim}',
-              style: TextStyle(fontSize: 24),
-            )),
-        _progressBar(mediaQuery, tikufimPer),
-        ListTile(
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(Icons.my_location),
-            ),
-            title: countUpAnimation(userData.monthlyKnasot.toDouble(),
-                'בקרות: ', '/${userData.knasotGoal}'),
-            subtitle: Text(
-              'נותרו: ${userData.knasotGoal - userData.monthlyKnasot}',
-              style: TextStyle(fontSize: 24),
-            )),
-        _progressBar(mediaQuery, knasotPer),
+        buildDataTile(Icons.directions_bus, 'בקרות:', userData.monthlyBakarot,
+            userData.bakarotGoal, bakarotPer),
+        buildDataTile(Icons.confirmation_num_rounded, 'תיקופים:',
+            userData.monthlyTikufim, userData.tikufimGoal, tikufimPer),
+        buildDataTile(Icons.my_location, 'קנסות:', userData.monthlyKnasot,
+            userData.knasotGoal, knasotPer),
         History()
       ],
     );

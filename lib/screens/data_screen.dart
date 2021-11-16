@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/widgets/add_data.dart';
+import 'package:egged_bakara/widgets/bottom_button.dart';
 import 'package:egged_bakara/widgets/data.dart';
 import 'package:egged_bakara/widgets/my_dialog.dart';
 import 'package:egged_bakara/widgets/options.dart';
@@ -42,8 +43,8 @@ class _DataScreenState extends State<DataScreen>
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    super.dispose();
   }
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
@@ -73,42 +74,9 @@ class _DataScreenState extends State<DataScreen>
                   topRight: const Radius.circular(16.0)),
               elevation: 12.0,
               child: Column(children: <Widget>[
-                Expanded(
-                  child: Column(
-                    children: [
-                      Data(),
-                      Spacer(),
-                      Container(
-                        alignment: Alignment.center,
-                        height: 35,
-                        width: 70,
-                        decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20.0))),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.green,
-                            onPrimary: Colors.white,
-                            shadowColor: Colors.greenAccent,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20))),
-                          ),
-                          onPressed: () {
-                            _openOptions(context);
-                          },
-                          child: Icon(
-                            Icons.arrow_drop_up_rounded,
-                            size: 40,
-                          ),
-                        ),
-                        //add as many tabs as you want here
-                      ),
-                    ],
-                  ),
-                ),
+                Data(),
+                Spacer(),
+                BottomButton(_openOptions),
               ]),
             ),
           ),
@@ -173,31 +141,31 @@ class _DataScreenState extends State<DataScreen>
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
-    _PANEL_HEADER_HEIGHT = height * 0.57;
+    _PANEL_HEADER_HEIGHT = height * 0.62;
 
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
         title: Text("אגד בקרה"),
-        leading: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: AnimatedIconButton(
+        actions: [
+          AnimatedIconButton(
             size: 30,
             onPressed: () {
               _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
             },
             duration: const Duration(milliseconds: 500),
-            splashColor: Colors.transparent,
+            splashRadius: 25,
+            splashColor: Colors.green,
             icons: const <AnimatedIconItem>[
               AnimatedIconItem(
-                icon: Icon(Icons.bar_chart),
+                icon: Icon(Icons.auto_graph),
               ),
               AnimatedIconItem(
                 icon: Icon(Icons.close),
               ),
             ],
-          ),
-        ),
+          )
+        ],
       ),
       body: LayoutBuilder(
         builder: _buildStack,
