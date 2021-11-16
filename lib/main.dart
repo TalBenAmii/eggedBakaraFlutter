@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/my_theme.dart';
 import 'package:egged_bakara/screens/data_screen.dart';
@@ -9,11 +11,13 @@ import 'screens/data_screen.dart';
 
 //todo: arrange code
 //todo: animations + slow visable on top
-//todo: make year selection + fix year select (if isnt working)
-//todo: make a downarrow for every history section
 //todo: fix screen sizing(learn responise app)
 //todo: make a swipe down for the stats
 //todo: add dividers and borders in data screen
+//todo: make a more detailed history
+//todo: make stats calc improvments(working days)
+//todo: fix renderflex when animatedContainer
+//todo: make double icon (stats and down arrow) in top of screen
 
 void main() {
   runApp(MyApp());
@@ -29,16 +33,16 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (ctx) => UserData(),
       child: MaterialApp(
-        builder: (context, child) {
-          return Directionality(
-            textDirection: TextDirection.rtl,
-            child: child,
-          );
-        },
-        title: 'אגד בקרה',
-        home: DataScreen(),
-        theme: MyTheme().theme(),
-      ),
+          debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            return Directionality(
+              textDirection: TextDirection.rtl,
+              child: child,
+            );
+          },
+          title: 'אגד בקרה',
+          home: DataScreen(),
+          theme: MyTheme().theme()),
     );
   }
 }
