@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/my_theme.dart';
+import 'package:egged_bakara/utils/constants.dart';
 import 'package:egged_bakara/widgets/add_data.dart';
 import 'package:egged_bakara/widgets/bottom_button.dart';
 import 'package:egged_bakara/widgets/data.dart';
@@ -141,9 +142,7 @@ class _DataScreenState extends State<DataScreen>
 
   @override
   Widget build(BuildContext context) {
-    width = MediaQuery.of(context).size.width;
-    height = MediaQuery.of(context).size.height;
-    _PANEL_HEADER_HEIGHT = height * 0.55;
+    _PANEL_HEADER_HEIGHT = HEIGHT * 0.55;
 
     return Scaffold(
       appBar: AppBar(

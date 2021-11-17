@@ -1,3 +1,4 @@
+import 'package:egged_bakara/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -185,10 +186,7 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
                 dayNameColor: widget.dayNameColor,
               ),
               if (index == _days.length - 1)
-                SizedBox(
-                    width: MediaQuery.of(context).size.width -
-                        widget.leftMargin -
-                        65)
+                SizedBox(width: WIDTH - widget.leftMargin - 65)
             ],
           );
         },
@@ -257,9 +255,7 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
                 ),
                 if (index == _months.length - 1)
                   SizedBox(
-                    width: MediaQuery.of(context).size.width -
-                        widget.leftMargin -
-                        (monthName.length * 10),
+                    width: WIDTH - widget.leftMargin - (monthName.length * 10),
                   )
               ],
             ),
@@ -301,9 +297,7 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
                 ),
                 if (index == _years.length - 1)
                   SizedBox(
-                    width: MediaQuery.of(context).size.width -
-                        widget.leftMargin -
-                        (yearName.length * 10),
+                    width: WIDTH - widget.leftMargin - (yearName.length * 10),
                   )
               ],
             ),

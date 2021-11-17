@@ -1,3 +1,4 @@
+import 'package:egged_bakara/utils/constants.dart';
 import 'package:flutter/material.dart';
 import '../models/user_data.dart';
 
@@ -6,7 +7,7 @@ class AddData extends StatefulWidget {
   final bool addGoal;
   final Function updateData;
 
-  AddData(this.userData, this.addGoal,this.updateData);
+  AddData(this.userData, this.addGoal, this.updateData);
 
   @override
   State<AddData> createState() => _AddDataState();
@@ -18,7 +19,6 @@ class _AddDataState extends State<AddData> {
   final TextEditingController monthlyKnasot = new TextEditingController();
 
   void _submit() {
-
     if (monthlyBakarot.text.isEmpty ||
         monthlyTikufim.text.isEmpty ||
         monthlyKnasot.text.isEmpty) return;
@@ -26,9 +26,7 @@ class _AddDataState extends State<AddData> {
     final int bakarotTransf = int.parse(monthlyBakarot.text);
     final int tikufimTransf = int.parse(monthlyTikufim.text);
     final int knasotTransf = int.parse(monthlyKnasot.text);
-    if (bakarotTransf < 0 ||
-        tikufimTransf < 0 ||
-        knasotTransf < 0) return;
+    if (bakarotTransf < 0 || tikufimTransf < 0 || knasotTransf < 0) return;
 
     if (widget.addGoal) {
       widget.userData.addGoal(bakarotTransf, tikufimTransf, knasotTransf);
@@ -52,44 +50,43 @@ class _AddDataState extends State<AddData> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
     return SingleChildScrollView(
       child: Container(
-          margin: EdgeInsets.all(10),
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              top: 10,
-              right: 10,
-              left: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              _textField('בקרות', monthlyBakarot),
-              SizedBox(
-                height: mediaQuery.size.height * 0.01,
-              ),
-              _textField('תיקופים', monthlyTikufim),
-              SizedBox(
-                height: mediaQuery.size.height * 0.01,
-              ),
-              _textField('קנסות', monthlyKnasot),
-              SizedBox(
-                height: mediaQuery.size.height * 0.01,
+        margin: EdgeInsets.all(10),
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 10,
+            right: 10,
+            left: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _textField('בקרות', monthlyBakarot),
+            SizedBox(
+              height: HEIGHT * 0.01,
+            ),
+            _textField('תיקופים', monthlyTikufim),
+            SizedBox(
+              height: HEIGHT * 0.01,
+            ),
+            _textField('קנסות', monthlyKnasot),
+            SizedBox(
+              height: HEIGHT * 0.01,
+            ),
+            // ignore: deprecated_member_use
+            RaisedButton(
+              onPressed: _submit,
+              child: Text(
+                'בצע',
+                style: Theme.of(context).textTheme.headline6,
               ),
               // ignore: deprecated_member_use
-              RaisedButton(
-                onPressed: _submit,
-                child: Text(
-                  'בצע',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                // ignore: deprecated_member_use
-                color: Theme.of(context).accentColor,
-              ),
-            ],
-          ),
+              color: Theme.of(context).accentColor,
+            ),
+          ],
         ),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:countup/countup.dart';
+import 'package:egged_bakara/utils/constants.dart';
 import 'package:egged_bakara/widgets/history.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -18,12 +19,11 @@ class _DataState extends State<Data> {
   int loadTime = 1500;
   bool animate;
   UserData userData;
-  MediaQueryData mediaQuery;
 
   Widget _progressBar(double per) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       LinearPercentIndicator(
-        width: mediaQuery.size.width - 50,
+        width: WIDTH - 50,
         animation: true,
         lineHeight: 30.0,
         animationDuration: loadTime,
@@ -76,7 +76,6 @@ class _DataState extends State<Data> {
 
   @override
   Widget build(BuildContext context) {
-    mediaQuery = MediaQuery.of(context);
     userData = Provider.of<UserData>(context, listen: false);
     double bakarotPer = userData.bakarotGoal != 0
         ? userData.monthlyBakarot / userData.bakarotGoal

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'utils/constants.dart';
 
-double screenWidth = window.physicalSize.width;
-
 class MyTheme {
   ThemeData theme() {
     return ThemeData(
@@ -15,7 +13,8 @@ class MyTheme {
       accentColor: Colors.green.shade800,
       canvasColor: Color(0xFFDEFFD3),
       iconTheme: IconThemeData(color: Colors.white),
-      textTheme: screenWidth < 500 ? TEXT_THEME_SMALL : TEXT_THEME_DEFAULT,
+      textTheme:
+          WIDTH < 400 && HEIGHT < 700 ? TEXT_THEME_SMALL : TEXT_THEME_DEFAULT,
       appBarTheme: AppBarTheme(
         titleTextStyle: TextStyle(
           fontSize: 30,

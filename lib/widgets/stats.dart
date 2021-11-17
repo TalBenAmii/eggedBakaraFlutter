@@ -1,4 +1,5 @@
 import 'package:egged_bakara/models/user_data.dart';
+import 'package:egged_bakara/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,7 +75,7 @@ class _StatsState extends State<Stats> {
     }
     data.add(
       Padding(
-        padding: const EdgeInsets.only(right: 130),
+        padding: EdgeInsets.only(right: WIDTH * 0.3),
         child: Text(
           'ליום',
           style: Theme.of(context)

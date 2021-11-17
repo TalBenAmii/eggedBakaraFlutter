@@ -1,4 +1,5 @@
 import 'package:egged_bakara/models/user_data.dart';
+import 'package:egged_bakara/utils/constants.dart';
 import 'package:egged_bakara/widgets/calender_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -22,13 +23,13 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     _monthController = AnimationController(
       vsync: this,
       duration: Duration(
-        milliseconds: 300,
+        milliseconds: 500,
       ),
     );
     _dayContoller = AnimationController(
       vsync: this,
       duration: Duration(
-        milliseconds: 300,
+        milliseconds: 500,
       ),
     );
     userData = Provider.of<UserData>(context, listen: false);
@@ -193,55 +194,59 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
         });
   }
 
+  void toggle(AnimationController controller, bool expanded) {
+    if (expanded) {
+      controller.forward();
+    } else {
+      controller.reverse();
+    }
+  }
+
   void expandUnexpand(bool monthCalender) {
     setState(() {
       if (monthCalender) {
         monthExpanded = !monthExpanded;
-        if (dayExpanded && monthExpanded) {
+        toggle(_monthController, monthExpanded);
+        if (monthExpanded && dayExpanded) {
           dayExpanded = !dayExpanded;
-          _dayContoller.reverse();
+          toggle(_dayContoller, dayExpanded);
         }
-        if (monthExpanded)
-          _monthController.forward();
-        else {
-          _monthController.reverse();
-        }
-        ;
       } else {
         dayExpanded = !dayExpanded;
-        if (dayExpanded && monthExpanded) {
+        toggle(_dayContoller, dayExpanded);
+        if (monthExpanded && dayExpanded) {
           monthExpanded = !monthExpanded;
-          _monthController.reverse();
-        }
-        if (dayExpanded)
-          _dayContoller.forward();
-        else {
-          _dayContoller.reverse();
+          toggle(_monthController, monthExpanded);
         }
       }
     });
   }
 
   Widget build(BuildContext context) {
-    final _monthCalender = HistorySection(_generateMonthCalender,
-        'היסטורית חודשים', 50, expandUnexpand, monthExpanded, _monthController);
+    final _monthCalender = HistorySection(
+        _generateMonthCalender,
+        'היסטורית חודשים',
+        expandUnexpand,
+        HEIGHT * 0.055,
+        monthExpanded,
+        _monthController);
     final _dayCalender = HistorySection(_generateDayCalender, 'היסטורית ימים',
-        115, expandUnexpand, dayExpanded, _dayContoller);
+        expandUnexpand, HEIGHT * 0.156, dayExpanded, _dayContoller);
 
     return Column(children: [_monthCalender, _dayCalender]);
   }
 }
 
 class HistorySection extends StatelessWidget {
-  HistorySection(this.historySection, this.text, this.height,
-      this.expandedUnexpended, this.expanded, this.controller,
+  HistorySection(this.historySection, this.text, this.expandedUnexpended,
+      this.height, this.expanded, this.controller,
       {Key key})
       : super(key: key);
   final Function historySection;
   final String text;
-  final double height;
   final Function expandedUnexpended;
   final bool expanded;
+  final double height;
   final controller;
   Animation<double> _opacityAnimation;
 
@@ -255,7 +260,8 @@ class HistorySection extends StatelessWidget {
     );
     return Column(children: [
       Container(
-        margin: const EdgeInsets.all(10),
+        margin: EdgeInsets.only(
+            top: HEIGHT * 0.02, left: WIDTH * 0.025, right: WIDTH * 0.025),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.green.shade800.withAlpha(170)),
             borderRadius: BorderRadius.circular(20)),
@@ -292,12 +298,14 @@ class HistorySection extends StatelessWidget {
           ),
         ),
       ),
+      SizedBox(
+        height: HEIGHT * 0.01,
+      ),
       AnimatedContainer(
-          duration: Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 500),
           height: expanded ? height : 0,
-          margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
           child: FadeTransition(
-              opacity: _opacityAnimation, child: historySection())),
+              opacity: _opacityAnimation, child: historySection()))
     ]);
   }
 }
