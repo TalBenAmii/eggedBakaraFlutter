@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/utils/constants.dart';
 import 'package:egged_bakara/widgets/calender_timeline.dart';
@@ -5,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
+
+bool canBePressed = true;
 
 class History extends StatefulWidget {
   const History({Key key}) : super(key: key);
@@ -23,13 +27,13 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     _monthController = AnimationController(
       vsync: this,
       duration: Duration(
-        milliseconds: 500,
+        milliseconds: 250,
       ),
     );
     _dayContoller = AnimationController(
       vsync: this,
       duration: Duration(
-        milliseconds: 500,
+        milliseconds: 250,
       ),
     );
     userData = Provider.of<UserData>(context, listen: false);
@@ -196,29 +200,79 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
 
   void toggle(AnimationController controller, bool expanded) {
     if (expanded) {
-      controller.forward();
-    } else {
       controller.reverse();
+    } else {
+      Future.delayed(const Duration(milliseconds: 250), () {
+        controller.forward();
+      });
     }
   }
 
   void expandUnexpand(bool monthCalender) {
-    setState(() {
-      if (monthCalender) {
-        monthExpanded = !monthExpanded;
-        toggle(_monthController, monthExpanded);
-        if (monthExpanded && dayExpanded) {
-          dayExpanded = !dayExpanded;
-          toggle(_dayContoller, dayExpanded);
-        }
-      } else {
-        dayExpanded = !dayExpanded;
-        toggle(_dayContoller, dayExpanded);
-        if (monthExpanded && dayExpanded) {
-          monthExpanded = !monthExpanded;
+    if (monthCalender) {
+      if (!monthExpanded && dayExpanded) {
+        Future.delayed(const Duration(milliseconds: 250), () {
           toggle(_monthController, monthExpanded);
-        }
+          setState(() {
+            monthExpanded = !monthExpanded;
+          });
+        });
+
+        toggle(_dayContoller, dayExpanded);
+        Future.delayed(const Duration(milliseconds: 250), () {
+          setState(() {
+            dayExpanded = !dayExpanded;
+          });
+        });
+      } else if (monthExpanded) {
+        toggle(_monthController, monthExpanded);
+        Future.delayed(const Duration(milliseconds: 250), () {
+          setState(() {
+            monthExpanded = !monthExpanded;
+          });
+        });
+      } else {
+        toggle(_monthController, monthExpanded);
+        setState(() {
+          monthExpanded = !monthExpanded;
+        });
       }
+    } else {
+      if (!dayExpanded && monthExpanded) {
+        Future.delayed(const Duration(milliseconds: 250), () {
+          toggle(_dayContoller, dayExpanded);
+          setState(() {
+            dayExpanded = !dayExpanded;
+          });
+        });
+        toggle(_monthController, monthExpanded);
+        Future.delayed(const Duration(milliseconds: 250), () {
+          setState(() {
+            monthExpanded = !monthExpanded;
+          });
+        });
+      } else if (dayExpanded) {
+        toggle(_dayContoller, dayExpanded);
+        Future.delayed(const Duration(milliseconds: 250), () {
+          setState(() {
+            dayExpanded = !dayExpanded;
+          });
+        });
+      } else {
+        toggle(_dayContoller, dayExpanded);
+        setState(() {
+          dayExpanded = !dayExpanded;
+        });
+      }
+    }
+  }
+
+  void toggleCanBePressed() {
+    setState(() {});
+    Timer(Duration(milliseconds: 500), () {
+      setState(() {
+        canBePressed = true;
+      });
     });
   }
 
@@ -229,17 +283,24 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
         expandUnexpand,
         HEIGHT * 0.055,
         monthExpanded,
-        _monthController);
-    final _dayCalender = HistorySection(_generateDayCalender, 'היסטורית ימים',
-        expandUnexpand, HEIGHT * 0.156, dayExpanded, _dayContoller);
+        _monthController,
+        toggleCanBePressed);
+    final _dayCalender = HistorySection(
+        _generateDayCalender,
+        'היסטורית ימים',
+        expandUnexpand,
+        HEIGHT * 0.156,
+        dayExpanded,
+        _dayContoller,
+        toggleCanBePressed);
 
     return Column(children: [_monthCalender, _dayCalender]);
   }
 }
 
-class HistorySection extends StatelessWidget {
+class HistorySection extends StatefulWidget {
   HistorySection(this.historySection, this.text, this.expandedUnexpended,
-      this.height, this.expanded, this.controller,
+      this.height, this.expanded, this.controller, this.toggleCanBePressed,
       {Key key})
       : super(key: key);
   final Function historySection;
@@ -248,13 +309,18 @@ class HistorySection extends StatelessWidget {
   final bool expanded;
   final double height;
   final controller;
-  Animation<double> _opacityAnimation;
+  final Function toggleCanBePressed;
 
   @override
+  State<HistorySection> createState() => _HistorySectionState();
+}
+
+class _HistorySectionState extends State<HistorySection> {
+  @override
   Widget build(BuildContext context) {
-    _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
+    Animation<double> _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: controller,
+        parent: widget.controller,
         curve: Curves.easeIn,
       ),
     );
@@ -268,16 +334,20 @@ class HistorySection extends StatelessWidget {
         child: InkWell(
           splashColor: Colors.green,
           borderRadius: BorderRadius.circular(20),
-          onTap: () {
-            if (text == 'היסטורית חודשים')
-              expandedUnexpended(true);
-            else {
-              expandedUnexpended(false);
-            }
-          },
+          onTap: canBePressed
+              ? () {
+                  canBePressed = false;
+                  widget.toggleCanBePressed();
+                  if (widget.text == 'היסטורית חודשים')
+                    widget.expandedUnexpended(true);
+                  else {
+                    widget.expandedUnexpended(false);
+                  }
+                }
+              : null,
           child: ListTile(
             title: Text(
-              text,
+              widget.text,
               style: Theme.of(context).textTheme.headline2,
             ),
             trailing: IconButton(
@@ -285,15 +355,20 @@ class HistorySection extends StatelessWidget {
               iconSize: 40,
               splashColor: Colors.green,
               splashRadius: 25,
-              icon:
-                  expanded ? Icon(Icons.expand_less) : Icon(Icons.expand_more),
-              onPressed: () {
-                if (text == 'היסטורית חודשים')
-                  expandedUnexpended(true);
-                else {
-                  expandedUnexpended(false);
-                }
-              },
+              icon: widget.expanded
+                  ? Icon(Icons.expand_less)
+                  : Icon(Icons.expand_more),
+              onPressed: canBePressed
+                  ? () {
+                      canBePressed = false;
+                      widget.toggleCanBePressed();
+                      if (widget.text == 'היסטורית חודשים')
+                        widget.expandedUnexpended(true);
+                      else {
+                        widget.expandedUnexpended(false);
+                      }
+                    }
+                  : null,
             ),
           ),
         ),
@@ -302,10 +377,10 @@ class HistorySection extends StatelessWidget {
         height: HEIGHT * 0.01,
       ),
       AnimatedContainer(
-          duration: Duration(milliseconds: 500),
-          height: expanded ? height : 0,
+          duration: Duration(milliseconds: 250),
+          height: widget.expanded ? widget.height : 0,
           child: FadeTransition(
-              opacity: _opacityAnimation, child: historySection()))
+              opacity: _opacityAnimation, child: widget.historySection()))
     ]);
   }
 }
