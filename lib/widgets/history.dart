@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/utils/constants.dart';
 import 'package:egged_bakara/widgets/calender_timeline.dart';
+import 'package:egged_bakara/widgets/data.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,10 +19,11 @@ class History extends StatefulWidget {
 }
 
 class _HistoryState extends State<History> with TickerProviderStateMixin {
-  UserData userData;
+  UserData _userData;
   bool dayExpanded = false, monthExpanded = false;
   AnimationController _monthController, _dayContoller;
-
+  var _monthCalender, _dayCalender;
+  bool init = true;
   @override
   void initState() {
     _monthController = AnimationController(
@@ -36,7 +38,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
         milliseconds: 250,
       ),
     );
-    userData = Provider.of<UserData>(context, listen: false);
+
     super.initState();
   }
 
@@ -64,7 +66,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     ];
     return CalendarTimeline(
       monthGoal: monthGoal,
-      history: userData.history,
+      history: _userData.history,
       initialDate: DateTime(
           DateTime.now().year, DateTime.now().month, DateTime.now().day),
       firstDate: DateTime(DateTime.now().year),
@@ -73,26 +75,32 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
         int monthlyBakarot = 0, monthlyTikufim = 0, monthlyKnasot = 0;
 
         if (monthGoal) {
-          if (userData.history[DateFormat.yMMMd()
+          if (_userData.history[DateFormat.yMMMd()
                   .format(DateTime(date.year, date.month, 1))] !=
               null) {
-            monthlyBakarot = userData.history[DateFormat.yMMMd()
-                .format(DateTime(date.year, date.month, 1))]['monthlyBakarot'];
-            monthlyTikufim = userData.history[DateFormat.yMMMd()
-                .format(DateTime(date.year, date.month, 1))]['monthlyTikufim'];
-            monthlyKnasot = userData.history[DateFormat.yMMMd()
-                .format(DateTime(date.year, date.month, 1))]['monthlyKnasot'];
+            monthlyBakarot = _userData
+                .history[DateFormat.yMMMd()
+                    .format(DateTime(date.year, date.month, 1))]
+                .monthlyBakarot;
+            monthlyTikufim = _userData
+                .history[DateFormat.yMMMd()
+                    .format(DateTime(date.year, date.month, 1))]
+                .monthlyTikufim;
+            monthlyKnasot = _userData
+                .history[DateFormat.yMMMd()
+                    .format(DateTime(date.year, date.month, 1))]
+                .monthlyKnasot;
           }
           _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot,
               monthsName[date.month - 1], true);
         } else {
-          if (userData.history[DateFormat.yMd().format(date)] != null) {
-            monthlyBakarot = userData.history[DateFormat.yMd().format(date)]
-                ['monthlyBakarot'];
-            monthlyTikufim = userData.history[DateFormat.yMd().format(date)]
-                ['monthlyTikufim'];
-            monthlyKnasot = userData.history[DateFormat.yMd().format(date)]
-                ['monthlyKnasot'];
+          if (_userData.history[DateFormat.yMd().format(date)] != null) {
+            monthlyBakarot =
+                _userData.history[DateFormat.yMd().format(date)].monthlyBakarot;
+            monthlyTikufim =
+                _userData.history[DateFormat.yMd().format(date)].monthlyTikufim;
+            monthlyKnasot =
+                _userData.history[DateFormat.yMd().format(date)].monthlyKnasot;
           }
           _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot,
               DateFormat('dd/MM/yyyy').format(date), false);
@@ -132,67 +140,33 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     }
     showModalBottomSheet(
         context: context,
-        builder: (_) {
-          return SingleChildScrollView(
-            child: Container(
-              margin: EdgeInsets.all(5),
-              padding: EdgeInsets.all(5),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: isHistory == false
-                    ? [
-                        Text(
-                          chosen + ':',
-                          style: Theme.of(context).textTheme.headline4.copyWith(
-                              fontSize: 50,
-                              decoration: TextDecoration.underline),
-                        ),
-                        Text('אין הסטוריה',
-                            style:
-                                Theme.of(context).textTheme.headline4.copyWith(
-                                      fontSize: 45,
-                                    ))
-                      ]
-                    : [
-                        Text(
-                          chosen + ':',
-                          style: Theme.of(context).textTheme.headline4.copyWith(
-                              fontSize: 50,
-                              decoration: TextDecoration.underline),
-                        ),
-                        Text(
-                          '$append בקרות: ' + monthlyBakarot.toString(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4
-                              .copyWith(fontSize: 35),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Text(
-                          '$append תיקופים: ' + monthlyTikufim.toString(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4
-                              .copyWith(fontSize: 35),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Text(
-                          '$append קנסות: ' + monthlyKnasot.toString(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4
-                              .copyWith(fontSize: 35),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                      ],
-              ),
+        isScrollControlled: true,
+        builder: (ctx) {
+          return Container(
+            margin: EdgeInsets.all(5),
+            padding: EdgeInsets.all(5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  chosen + ':',
+                  style: Theme.of(ctx).textTheme.headline4.copyWith(
+                      fontSize: 50, decoration: TextDecoration.underline),
+                ),
+                if (!isHistory)
+                  Text('אין הסטוריה',
+                      style: Theme.of(ctx).textTheme.headline4.copyWith(
+                            fontSize: 45,
+                          )),
+                if (isHistory)
+                  Data(
+                    history: true,
+                  ),
+                SizedBox(
+                  height: 15,
+                )
+              ],
             ),
           );
         });
@@ -277,33 +251,31 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
   }
 
   Widget build(BuildContext context) {
-    final _monthCalender = HistorySection(
-        _generateMonthCalender,
-        'היסטורית חודשים',
-        expandUnexpand,
-        HEIGHT * 0.055,
-        monthExpanded,
-        _monthController,
-        toggleCanBePressed);
-    final _dayCalender = HistorySection(
-        _generateDayCalender,
-        'היסטורית ימים',
-        expandUnexpand,
-        HEIGHT * 0.156,
-        dayExpanded,
-        _dayContoller,
-        toggleCanBePressed);
-
-    return Column(children: [_monthCalender, _dayCalender]);
+    if (init) {
+      _userData = Provider.of<UserData>(context);
+      _monthCalender = _generateMonthCalender();
+      _dayCalender = _generateDayCalender();
+    }
+    Provider.of<UserData>(context).addListener(() {
+      _monthCalender = _generateMonthCalender();
+      _dayCalender = _generateDayCalender();
+    });
+    init = false;
+    return Column(children: [
+      HistorySection(_monthCalender, 'היסטורית חודשים', expandUnexpand,
+          HEIGHT * 0.055, monthExpanded, _monthController, toggleCanBePressed),
+      HistorySection(_dayCalender, 'היסטורית ימים', expandUnexpand,
+          HEIGHT * 0.156, dayExpanded, _dayContoller, toggleCanBePressed)
+    ]);
   }
 }
 
-class HistorySection extends StatefulWidget {
-  HistorySection(this.historySection, this.text, this.expandedUnexpended,
-      this.height, this.expanded, this.controller, this.toggleCanBePressed,
+class HistorySection extends StatelessWidget {
+  HistorySection(this.calender, this.text, this.expandedUnexpended, this.height,
+      this.expanded, this.controller, this.toggleCanBePressed,
       {Key key})
       : super(key: key);
-  final Function historySection;
+  final calender;
   final String text;
   final Function expandedUnexpended;
   final bool expanded;
@@ -312,15 +284,10 @@ class HistorySection extends StatefulWidget {
   final Function toggleCanBePressed;
 
   @override
-  State<HistorySection> createState() => _HistorySectionState();
-}
-
-class _HistorySectionState extends State<HistorySection> {
-  @override
   Widget build(BuildContext context) {
     Animation<double> _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: widget.controller,
+        parent: controller,
         curve: Curves.easeIn,
       ),
     );
@@ -337,17 +304,17 @@ class _HistorySectionState extends State<HistorySection> {
           onTap: canBePressed
               ? () {
                   canBePressed = false;
-                  widget.toggleCanBePressed();
-                  if (widget.text == 'היסטורית חודשים')
-                    widget.expandedUnexpended(true);
+                  toggleCanBePressed();
+                  if (text == 'היסטורית חודשים')
+                    expandedUnexpended(true);
                   else {
-                    widget.expandedUnexpended(false);
+                    expandedUnexpended(false);
                   }
                 }
               : null,
           child: ListTile(
             title: Text(
-              widget.text,
+              text,
               style: Theme.of(context).textTheme.headline2,
             ),
             trailing: IconButton(
@@ -355,17 +322,16 @@ class _HistorySectionState extends State<HistorySection> {
               iconSize: 40,
               splashColor: Colors.green,
               splashRadius: 25,
-              icon: widget.expanded
-                  ? Icon(Icons.expand_less)
-                  : Icon(Icons.expand_more),
+              icon:
+                  expanded ? Icon(Icons.expand_less) : Icon(Icons.expand_more),
               onPressed: canBePressed
                   ? () {
                       canBePressed = false;
-                      widget.toggleCanBePressed();
-                      if (widget.text == 'היסטורית חודשים')
-                        widget.expandedUnexpended(true);
+                      toggleCanBePressed();
+                      if (text == 'היסטורית חודשים')
+                        expandedUnexpended(true);
                       else {
-                        widget.expandedUnexpended(false);
+                        expandedUnexpended(false);
                       }
                     }
                   : null,
@@ -378,9 +344,8 @@ class _HistorySectionState extends State<HistorySection> {
       ),
       AnimatedContainer(
           duration: Duration(milliseconds: 250),
-          height: widget.expanded ? widget.height : 0,
-          child: FadeTransition(
-              opacity: _opacityAnimation, child: widget.historySection()))
+          height: expanded ? height : 0,
+          child: FadeTransition(opacity: _opacityAnimation, child: calender))
     ]);
   }
 }

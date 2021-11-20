@@ -1,8 +1,48 @@
+import 'package:egged_bakara/models/my_flush_bar.dart';
+import 'package:egged_bakara/models/user_data.dart';
+import 'package:egged_bakara/widgets/my_dialog.dart';
+import 'package:egged_bakara/widgets/options.dart';
 import 'package:flutter/material.dart';
 
+import 'add_data.dart';
+
 class BottomButton extends StatelessWidget {
-  BottomButton(this._openOptions, {Key key}) : super(key: key);
-  final Function _openOptions;
+  final Function _updateData;
+  final UserData _userData;
+  BottomButton(this._updateData, this._userData, {Key key}) : super(key: key);
+
+  void _openAddTransaction(BuildContext ctx, bool addGoal) {
+    showModalBottomSheet(
+        context: ctx,
+        builder: (_) {
+          return AddData(addGoal, _updateData);
+        });
+  }
+
+  void _openOptions(BuildContext ctx) {
+    showModalBottomSheet(
+        context: ctx,
+        builder: (_) {
+          return Options(_openAddTransaction, _showDialog);
+        });
+  }
+
+  void _showDialog(BuildContext context) {
+    VoidCallback continueCallBack = () {
+      _userData.reset();
+      _updateData();
+    };
+    BlurryDialog alert = BlurryDialog("איפוס נתונים",
+        "האם אתה בטוח שברצונך לאפס את הנתונים שלך?", continueCallBack);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(

@@ -202,19 +202,25 @@ class _StatsState extends State<Stats> {
 
   @override
   Widget build(BuildContext context) {
-    final _userData = Provider.of<UserData>(context, listen: false);
+    final _userData = Provider.of<UserData>(context);
     int daysLeft = getWorkingDays(
             DateTime.now(),
             DateTime(DateTime.now().year, DateTime.now().month + 1, 0),
             friday,
             saturday) +
         1;
-    final bakarotDarush =
-        (_userData.bakarotGoal - _userData.monthlyBakarot) / daysLeft;
-    final tikufimDarush =
-        (_userData.tikufimGoal - _userData.monthlyTikufim) / daysLeft;
-    final knasotDarush =
-        (_userData.knasotGoal - _userData.monthlyKnasot) / daysLeft;
+    final bakarotLeft = _userData.bakarotGoal - _userData.monthlyBakarot < 0
+        ? 0
+        : _userData.bakarotGoal - _userData.monthlyBakarot;
+    final tikufimLeft = _userData.tikufimGoal - _userData.monthlyTikufim < 0
+        ? 0
+        : _userData.tikufimGoal - _userData.monthlyTikufim;
+    final knasotLeft = _userData.knasotGoal - _userData.monthlyKnasot < 0
+        ? 0
+        : _userData.knasotGoal - _userData.monthlyKnasot;
+    final bakarotDarush = bakarotLeft / daysLeft;
+    final tikufimDarush = tikufimLeft / daysLeft;
+    final knasotDarush = knasotLeft / daysLeft;
     final bakarotYesh = _userData.monthlyBakarot / DateTime.now().day;
     final tikufimYesh = _userData.monthlyTikufim / DateTime.now().day;
     final knasotYesh = _userData.monthlyKnasot / DateTime.now().day;

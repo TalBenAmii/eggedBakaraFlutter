@@ -1,12 +1,12 @@
 import 'dart:ui';
 
+import 'package:egged_bakara/models/my_flush_bar.dart';
 import 'package:flutter/material.dart';
 
 class BlurryDialog extends StatelessWidget {
   final String title;
   final String content;
   final VoidCallback continueCallBack;
-  final TextStyle textStyle = TextStyle(color: Colors.black);
 
   BlurryDialog(this.title, this.content, this.continueCallBack);
 
@@ -17,18 +17,23 @@ class BlurryDialog extends StatelessWidget {
         child: AlertDialog(
           title: new Text(
             title,
-            style: textStyle,
+            style: Theme.of(context)
+                .textTheme
+                .headline3
+                .copyWith(fontWeight: FontWeight.bold),
           ),
           content: new Text(
             content,
-            style: textStyle,
+            style: Theme.of(context).textTheme.headline5,
           ),
           actions: <Widget>[
             // ignore: deprecated_member_use
             new FlatButton(
               child: Text(
                 "בטל",
-                style: Theme.of(context).textTheme.headline2,
+                style: Theme.of(context).textTheme.headline5.copyWith(
+                    color: Color.fromRGBO(2, 122, 255, 1),
+                    fontWeight: FontWeight.w600),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -37,11 +42,16 @@ class BlurryDialog extends StatelessWidget {
             // ignore: deprecated_member_use
             new FlatButton(
               child: new Text(
-                "אשר",
-                style: Theme.of(context).textTheme.headline2,
+                "אפס",
+                style: Theme.of(context).textTheme.headline5.copyWith(
+                    color: Color.fromRGBO(255, 59, 48, 1),
+                    fontWeight: FontWeight.w600),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
+                MyFlushBar('ההישגים אופסו בהצלחה!', Colors.red, Icons.delete,
+                        context)
+                    .buildFlushBar();
                 continueCallBack();
               },
             ),

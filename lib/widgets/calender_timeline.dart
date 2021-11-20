@@ -1,3 +1,4 @@
+import 'package:egged_bakara/models/history_data.dart';
 import 'package:egged_bakara/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -7,10 +8,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 typedef OnDateSelected = void Function(DateTime);
 
-/// Creates a minimal, small profile calendar to select specific dates.
-/// [initialDate] must not be [null], the same or after [firstDate] and
-/// the same or before [lastDate]. [firstDate] must not be [null].
-/// [lastDate] must not be null and the same or after [firstDate]
 class CalendarTimeline extends StatefulWidget {
   final DateTime initialDate;
   final DateTime firstDate;
@@ -26,10 +23,8 @@ class CalendarTimeline extends StatefulWidget {
   final Color dayNameColor;
   final String locale;
   final bool monthGoal;
-  final Map<String, Map<String, dynamic>> history;
+  final Map<String, HistoryData> history;
 
-  /// If true, it will show a separate row for the years.
-  /// It defaults to false
   final bool showYears;
 
   CalendarTimeline({
@@ -98,7 +93,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
   String get _locale =>
       widget.locale ?? Localizations.localeOf(context).languageCode;
 
-  /// Populates the calendar and animates to the [widget.initialDate]
   @override
   void initState() {
     super.initState();
@@ -109,7 +103,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
     });
   }
 
-  /// Refreshes the calendar when a day, month or year is selected
   @override
   void didUpdateWidget(CalendarTimeline oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -136,9 +129,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
     );
   }
 
-  /// Creates the row with the day of the [selectedDate.month]. If the
-  /// [selectedDate.year] && [selectedDate.month] is the [widget.firstDate] or [widget.lastDate]
-  /// the days show will be de availables
   SizedBox _buildDayList() {
     return SizedBox(
       height: 75,
@@ -194,9 +184,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
     );
   }
 
-  /// Creates the row with all the months in the calendar. If [widget.showYears] is set to true
-  /// it will only show the months allowed in the selected year. By default it will show all
-  /// months in the calendar and the small version of [YearName] for each year in between
   Widget _buildMonthList() {
     return Container(
       height: 40,
@@ -265,8 +252,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
     );
   }
 
-  /// Creates the row with all the years in the calendar. It will only show if
-  /// [widget.showYears] is set to true. It is false by default
   Widget _buildYearList() {
     return Container(
       height: 40,
@@ -307,10 +292,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
     );
   }
 
-  /// It will populate the [_days] list with all the allowed days. Adding all days of the month
-  /// when the [selectedDate.month] is not the first or the last in [widget.firstDate] or [widget.lastDate].
-  /// In that case it will only show the allowed days from and up to the specified in [widget.firstDate]
-  /// and [widget.lastDate]
   _generateDays(DateTime selectedDate) {
     _days.clear();
     for (var i = 1; i <= 31; i++) {
@@ -322,11 +303,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
     }
   }
 
-  /// It will populate the [_months] list. If [widget.showYears] is true, it will add from January
-  /// to December, unless the selected year is the [widget.firstDate.year] or the [widget.lastDate.year].
-  /// In that case it will only from and up to the allowed months in [widget.firstDate] and [widget.lastDate].
-  /// By default, when [widget.showYears] is false, it will add all months from [widget.firstDate] to
-  /// [widget.lastDate] and all in between
   _generateMonths(DateTime selectedDate) {
     _months.clear();
     if (widget.showYears) {
@@ -348,7 +324,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
     }
   }
 
-  /// It will populate the [_years] list with the years between firstDate and lastDate
   _generateYears() {
     _years.clear();
     DateTime date = widget.firstDate;
@@ -358,7 +333,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
     }
   }
 
-  /// It will reset the calendar to the initial date
   _resetCalendar(DateTime date) {
     if (widget.showYears) _generateMonths(date);
     _generateDays(date);
@@ -450,7 +424,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
         _days.firstWhere((dayDate) => dayDate.day == widget.initialDate.day));
   }
 
-  /// Initializes the calendar. It will be executed every time a new date is selected
   _initCalendar() {
     _selectedDate = widget.initialDate;
     _generateMonths(_selectedDate);
@@ -464,9 +437,6 @@ class _CalendarTimelineState extends State<CalendarTimeline> {
   }
 }
 
-/// Creates a Widget to represent the years. By default it will show the smaller version
-/// in the months row. If [small] is set to false it will show the bigger version for the
-/// years row. In the smaller version the [onTap] property is not available
 class YearName extends StatelessWidget {
   final String name;
   final Function onTap;
@@ -508,7 +478,6 @@ class YearName extends StatelessWidget {
   }
 }
 
-/// Creates a Widget to represent the monts.
 class MonthName extends StatelessWidget {
   final String name;
   final Function onTap;
@@ -565,7 +534,6 @@ class MonthName extends StatelessWidget {
   }
 }
 
-/// Creates a Widget representing the day.
 class _DayItem extends StatelessWidget {
   final int dayNumber;
   final String shortName;
@@ -578,7 +546,7 @@ class _DayItem extends StatelessWidget {
   final Color dotsColor;
   final Color dayNameColor;
   final DateTime currentDate;
-  final Map<String, Map<String, dynamic>> history;
+  final Map<String, HistoryData> history;
   final bool initDay;
 
   _DayItem(
@@ -601,8 +569,6 @@ class _DayItem extends StatelessWidget {
   final double height = 70.0;
   final double width = 60.0;
 
-  ///? I united both widgets to increase the touch target of non selected days by using a transparent box decorator.
-  ///? Now if the user click close to the number but not straight on top it will still select the date. (ONLY INFORMATION - ERASE)
   _buildDay(BuildContext context) {
     final textStyle = TextStyle(
         color: available

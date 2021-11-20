@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 final double WIDTH =
     MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.width;
+final double PADDING =
+    MediaQueryData.fromWindow(WidgetsBinding.instance.window).padding.top;
 final double HEIGHT =
     MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.height;
 

@@ -10,12 +10,9 @@ import 'package:provider/provider.dart';
 import 'screens/data_screen.dart';
 
 //todo: arrange code
-//todo: animations + slow visable on top
-//todo: fix screen sizing(learn responise app)
-//todo: make a swipe down for the stats
-//todo: make a more detailed history
-//todo: fix renderflex when animatedContainer
-//todo: make double icon (stats and down arrow) in top of screen
+//todo: make a dragable stats, make airplane animation in stats
+//todo: make a more detailed history and improve appearance (listtile with icons in bakarot..)
+//todo: make no history icon
 
 void main() {
   runApp(MyApp());

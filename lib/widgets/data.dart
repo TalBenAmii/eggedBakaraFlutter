@@ -7,20 +7,13 @@ import 'package:provider/provider.dart';
 
 import '../models/user_data.dart';
 
-class Data extends StatefulWidget {
-  @override
-  State<Data> createState() => _DataState();
-}
-
-class _DataState extends State<Data> {
-  bool init = true;
-  bool initLoadData = true;
-  bool initDay = true;
+class Data extends StatelessWidget {
   int loadTime = 1500;
-  bool animate;
+  bool history;
   UserData userData;
+  Data({this.history = false});
 
-  Widget _progressBar(double per) {
+  Widget _progressBar(double per, BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       LinearPercentIndicator(
         width: WIDTH - 50,
@@ -38,7 +31,8 @@ class _DataState extends State<Data> {
     ]);
   }
 
-  Countup countUpAnimation(double end, String prefix, String suffix) {
+  Countup countUpAnimation(
+      double end, String prefix, String suffix, BuildContext context) {
     return Countup(
         begin: 0,
         prefix: prefix,
@@ -49,8 +43,9 @@ class _DataState extends State<Data> {
         style: Theme.of(context).textTheme.headline1);
   }
 
-  Widget buildDataTile(
-      IconData icon, String data, int current, int goal, double per) {
+  Widget buildDataTile(IconData icon, String data, int current, int goal,
+      double per, BuildContext context) {
+    int left = goal - current < 0 ? 0 : goal - current;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 3),
       child: Column(
@@ -63,12 +58,13 @@ class _DataState extends State<Data> {
                   color: Theme.of(context).accentColor,
                 ),
               ),
-              title: countUpAnimation(current.toDouble(), '$data ', '/${goal}'),
+              title: countUpAnimation(
+                  current.toDouble(), '$data ', '/${goal}', context),
               subtitle: Text(
-                'נותרו: ${goal - current}',
+                'נותרו: ${left}',
                 style: TextStyle(fontSize: 24),
               )),
-          _progressBar(per),
+          _progressBar(per, context),
         ],
       ),
     );
@@ -76,7 +72,7 @@ class _DataState extends State<Data> {
 
   @override
   Widget build(BuildContext context) {
-    userData = Provider.of<UserData>(context, listen: false);
+    userData = Provider.of<UserData>(context);
     double bakarotPer = userData.bakarotGoal != 0
         ? userData.monthlyBakarot / userData.bakarotGoal
         : 0;
@@ -102,12 +98,11 @@ class _DataState extends State<Data> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         buildDataTile(Icons.directions_bus, 'בקרות:', userData.monthlyBakarot,
-            userData.bakarotGoal, bakarotPer),
+            userData.bakarotGoal, bakarotPer, context),
         buildDataTile(Icons.confirmation_num_rounded, 'תיקופים:',
-            userData.monthlyTikufim, userData.tikufimGoal, tikufimPer),
+            userData.monthlyTikufim, userData.tikufimGoal, tikufimPer, context),
         buildDataTile(Icons.my_location, 'קנסות:', userData.monthlyKnasot,
-            userData.knasotGoal, knasotPer),
-        History()
+            userData.knasotGoal, knasotPer, context),
       ],
     );
   }

@@ -5,6 +5,7 @@ class Options extends StatelessWidget {
 
   const Options(this._openAddTransaction, this._showDialog, {Key key})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -19,7 +20,7 @@ class Options extends StatelessWidget {
               },
               title: new Text(
                 "הוסף הישג יומי",
-                style: Theme.of(context).textTheme.headline5,
+                style: Theme.of(context).textTheme.headline4,
               ),
               leading: new Icon(
                 Icons.add,
@@ -36,7 +37,7 @@ class Options extends StatelessWidget {
               },
               title: new Text(
                 "הוסף מטרה חודשית",
-                style: Theme.of(context).textTheme.headline5,
+                style: Theme.of(context).textTheme.headline4,
               ),
               leading: new Icon(
                 Icons.flag,
@@ -53,7 +54,7 @@ class Options extends StatelessWidget {
               },
               title: new Text(
                 "מחק את ההישגים",
-                style: Theme.of(context).textTheme.headline5,
+                style: Theme.of(context).textTheme.headline4,
               ),
               leading: new Icon(
                 Icons.delete,

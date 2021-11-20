@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:egged_bakara/icons/my_flutter_app_icons.dart';
 import 'package:egged_bakara/models/user_data.dart';
-import 'package:egged_bakara/my_theme.dart';
 import 'package:egged_bakara/utils/constants.dart';
-import 'package:egged_bakara/widgets/add_data.dart';
 import 'package:egged_bakara/widgets/bottom_button.dart';
 import 'package:egged_bakara/widgets/data.dart';
-import 'package:egged_bakara/widgets/my_dialog.dart';
-import 'package:egged_bakara/widgets/options.dart';
+import 'package:egged_bakara/widgets/history.dart';
 import 'package:egged_bakara/widgets/stats.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_icon_button/animated_icon_button.dart';
@@ -28,6 +26,7 @@ class _DataScreenState extends State<DataScreen>
   UserData _userData;
   AnimationController _controller;
   double width, height;
+  SharedPreferences prefs;
 
   bool get _isPanelVisible {
     final AnimationStatus status = _controller.status;
@@ -38,7 +37,6 @@ class _DataScreenState extends State<DataScreen>
   @override
   void initState() {
     _userData = Provider.of<UserData>(context, listen: false);
-    _loadData();
     _controller = AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
     super.initState();
@@ -76,11 +74,18 @@ class _DataScreenState extends State<DataScreen>
                   topLeft: const Radius.circular(16.0),
                   topRight: const Radius.circular(16.0)),
               elevation: 12.0,
-              child: Column(children: <Widget>[
-                Data(),
-                Spacer(),
-                BottomButton(_openOptions),
-              ]),
+              child: SingleChildScrollView(
+                child: Container(
+                  width: WIDTH,
+                  height: HEIGHT - PADDING - kToolbarHeight,
+                  child: Column(children: <Widget>[
+                    Data(),
+                    History(),
+                    Spacer(),
+                    BottomButton(_updateData, _userData),
+                  ]),
+                ),
+              ),
             ),
           ),
         ],
@@ -88,89 +93,84 @@ class _DataScreenState extends State<DataScreen>
     );
   }
 
-  void _openOptions(BuildContext ctx) {
-    showModalBottomSheet(
-        context: ctx,
-        builder: (_) {
-          return Options(_openAddTransaction, _showDialog);
-        });
-  }
-
-  void _openAddTransaction(BuildContext ctx, bool addGoal) {
-    showModalBottomSheet(
-        context: ctx,
-        builder: (_) {
-          return AddData(_userData, addGoal, _updateData);
-        });
+  Future<void> _loadData() async {
+    try {
+      prefs = await SharedPreferences.getInstance();
+      Map<String, dynamic> history = jsonDecode(prefs.getString("history"));
+      Map<String, dynamic> data = jsonDecode(prefs.getString("data"));
+      _userData.fromJson(history, data);
+    } catch (error) {}
   }
 
   void _updateData() async {
-    setState(() {});
+    final Map<String, Map<String, dynamic>> history = new Map();
+    _userData.history.forEach((key, value) {
+      history.putIfAbsent(
+          key,
+          () => {
+                'monthlyBakarot': value.monthlyBakarot,
+                'monthlyTikufim': value.monthlyTikufim,
+                'monthlyKnasot': value.monthlyKnasot,
+                'bakarotGoal': value.bakarotGoal,
+                'tikufimGoal': value.tikufimGoal,
+                'knasotGoal': value.knasotGoal,
+              });
+    });
+
     _userData.saveData();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String json = jsonEncode(_userData.history);
+    prefs = await SharedPreferences.getInstance();
+    String json = jsonEncode(history);
     String data = jsonEncode(_userData.data);
     prefs.setString("history", json);
     prefs.setString("data", data);
   }
 
-  void _loadData() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      Map<String, dynamic> history = jsonDecode(prefs.getString("history"));
-      Map<String, dynamic> data = jsonDecode(prefs.getString("data"));
-      _userData.fromJson(history, data);
-      setState(() {});
-    } catch (exception) {}
-  }
-
-  void _showDialog(BuildContext context) {
-    VoidCallback continueCallBack = () {
-      _userData.reset();
-      _updateData();
-    };
-    BlurryDialog alert = BlurryDialog("איפוס נתונים",
-        "האם אתה בטוח שברצונך לאפס את הנתונים שלך?", continueCallBack);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
+  AnimatedIconButton buildAnimatedButton() {
+    return AnimatedIconButton(
+      onPressed: () {
+        _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
       },
+      duration: const Duration(milliseconds: 500),
+      splashRadius: 25,
+      splashColor: Colors.green,
+      icons: const <AnimatedIconItem>[
+        AnimatedIconItem(
+          icon: Icon(
+            MyFlutterApp.stats_icon,
+            color: Colors.white,
+          ),
+        ),
+        AnimatedIconItem(
+          icon: Icon(
+            Icons.arrow_upward_rounded,
+            color: Colors.white,
+          ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     _PANEL_HEADER_HEIGHT = HEIGHT * 0.55;
-
+    AnimatedIconButton animatedIconButton = buildAnimatedButton();
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
         centerTitle: true,
         title: Text("אגד בקרה"),
         actions: [
-          AnimatedIconButton(
-            size: 30,
-            onPressed: () {
-              _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
-            },
-            duration: const Duration(milliseconds: 500),
-            splashRadius: 25,
-            splashColor: Colors.green,
-            icons: const <AnimatedIconItem>[
-              AnimatedIconItem(
-                icon: Icon(Icons.assessment_outlined),
-              ),
-              AnimatedIconItem(
-                icon: Icon(Icons.close),
-              ),
-            ],
-          )
+          animatedIconButton,
         ],
       ),
-      body: LayoutBuilder(
-        builder: _buildStack,
+      body: FutureBuilder(
+        future: _loadData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return LayoutBuilder(builder: _buildStack);
+          }
+          return Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
