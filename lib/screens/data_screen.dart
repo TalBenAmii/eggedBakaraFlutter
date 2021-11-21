@@ -97,32 +97,31 @@ class _DataScreenState extends State<DataScreen>
     try {
       prefs = await SharedPreferences.getInstance();
       Map<String, dynamic> history = jsonDecode(prefs.getString("history"));
-      Map<String, dynamic> data = jsonDecode(prefs.getString("data"));
-      _userData.fromJson(history, data);
+      _userData.fromJson(history);
     } catch (error) {}
   }
 
   void _updateData() async {
     final Map<String, Map<String, dynamic>> history = new Map();
     _userData.history.forEach((key, value) {
-      history.putIfAbsent(
-          key,
-          () => {
-                'monthlyBakarot': value.monthlyBakarot,
-                'monthlyTikufim': value.monthlyTikufim,
-                'monthlyKnasot': value.monthlyKnasot,
-                'bakarotGoal': value.bakarotGoal,
-                'tikufimGoal': value.tikufimGoal,
-                'knasotGoal': value.knasotGoal,
-              });
+      history.putIfAbsent(key, () {
+        if (value != null) {
+          return {
+            'monthlyBakarot': value.monthlyBakarot,
+            'monthlyTikufim': value.monthlyTikufim,
+            'monthlyKnasot': value.monthlyKnasot,
+            'bakarotGoal': value.bakarotGoal,
+            'tikufimGoal': value.tikufimGoal,
+            'knasotGoal': value.knasotGoal,
+          };
+        }
+        return null;
+      });
     });
 
-    _userData.saveData();
     prefs = await SharedPreferences.getInstance();
     String json = jsonEncode(history);
-    String data = jsonEncode(_userData.data);
     prefs.setString("history", json);
-    prefs.setString("data", data);
   }
 
   AnimatedIconButton buildAnimatedButton() {

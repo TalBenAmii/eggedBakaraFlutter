@@ -11,14 +11,6 @@ class UserData with ChangeNotifier {
       tikufimGoal = 0,
       knasotGoal = 0;
   Map<String, HistoryData> history = new Map();
-  Map<String, dynamic> data = {
-    'monthlyBakarot': 0,
-    'monthlyTikufim': 0,
-    'monthlyKnasot': 0,
-    'bakarotGoal': 0,
-    'tikufimGoal': 0,
-    'knasotGoal': 0
-  };
 
   UserData();
 
@@ -26,7 +18,7 @@ class UserData with ChangeNotifier {
     this.monthlyBakarot += monthlyBakarot;
     this.monthlyTikufim += monthlyTikufim;
     this.monthlyKnasot += monthlyKnasot;
-    this.history[DateFormat.yMd().format(DateTime.now())] = HistoryData(
+    this.history[DateFormat.yMd().format(DateTime(2021, 11, 22))] = HistoryData(
       monthlyBakarot: this.monthlyBakarot,
       monthlyTikufim: this.monthlyTikufim,
       monthlyKnasot: this.monthlyKnasot,
@@ -37,17 +29,23 @@ class UserData with ChangeNotifier {
       monthlyBakarot: this.monthlyBakarot,
       monthlyTikufim: this.monthlyTikufim,
       monthlyKnasot: this.monthlyKnasot,
-      bakarotGoal: this.bakarotGoal,
-      tikufimGoal: this.tikufimGoal,
-      knasotGoal: this.knasotGoal,
     );
     notifyListeners();
   }
+
+  HistoryData getLatestHistory(int history) {}
 
   void addGoal(int bakarotGoal, int tikufimGoal, int knasotGoal) {
     this.bakarotGoal = bakarotGoal;
     this.tikufimGoal = tikufimGoal;
     this.knasotGoal = knasotGoal;
+    this.history[DateFormat.yMMMd()
+            .format(DateTime(DateTime.now().year, DateTime.now().month, 1))] =
+        HistoryData(
+      bakarotGoal: this.bakarotGoal,
+      tikufimGoal: this.tikufimGoal,
+      knasotGoal: this.knasotGoal,
+    );
     notifyListeners();
   }
 
@@ -68,16 +66,7 @@ class UserData with ChangeNotifier {
     notifyListeners();
   }
 
-  void saveData() {
-    data['monthlyBakarot'] = monthlyBakarot;
-    data['monthlyTikufim'] = monthlyTikufim;
-    data['monthlyKnasot'] = monthlyKnasot;
-    data['bakarotGoal'] = bakarotGoal;
-    data['tikufimGoal'] = tikufimGoal;
-    data['knasotGoal'] = knasotGoal;
-  }
-
-  void fromJson(Map<String, dynamic> json, Map<String, dynamic> data) {
+  void fromJson(Map<String, dynamic> json) {
     json.forEach((key, value) {
       history.putIfAbsent(
           key,
@@ -89,12 +78,30 @@ class UserData with ChangeNotifier {
               tikufimGoal: value['tikufimGoal'],
               knasotGoal: value['knasotGoal']));
     });
-    monthlyBakarot = data['monthlyBakarot'];
-    monthlyTikufim = data['monthlyTikufim'];
-    monthlyKnasot = data['monthlyKnasot'];
-    bakarotGoal = data['bakarotGoal'];
-    tikufimGoal = data['tikufimGoal'];
-    knasotGoal = data['knasotGoal'];
+    monthlyBakarot = history[DateFormat.yMMMd()
+                .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+            .monthlyBakarot ??
+        0;
+    monthlyTikufim = history[DateFormat.yMMMd()
+                .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+            .monthlyTikufim ??
+        0;
+    monthlyKnasot = history[DateFormat.yMMMd()
+                .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+            .monthlyKnasot ??
+        0;
+    bakarotGoal = history[DateFormat.yMMMd()
+                .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+            .bakarotGoal ??
+        0;
+    tikufimGoal = history[DateFormat.yMMMd()
+                .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+            .tikufimGoal ??
+        0;
+    knasotGoal = history[DateFormat.yMMMd()
+                .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+            .knasotGoal ??
+        0;
     notifyListeners();
   }
 }

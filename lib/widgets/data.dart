@@ -11,7 +11,20 @@ class Data extends StatelessWidget {
   int loadTime = 1500;
   bool history;
   UserData userData;
-  Data({this.history = false});
+  int monthlyBakarot,
+      monthlyTikufim,
+      monthlyKnasot,
+      bakarotGoal,
+      tikufimGoal,
+      knasotGoal;
+  Data(
+      {this.history = false,
+      this.monthlyBakarot = 0,
+      this.monthlyTikufim = 0,
+      this.monthlyKnasot = 0,
+      this.bakarotGoal = 0,
+      this.tikufimGoal = 0,
+      this.knasotGoal = 0});
 
   Widget _progressBar(double per, BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -73,15 +86,17 @@ class Data extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     userData = Provider.of<UserData>(context);
-    double bakarotPer = userData.bakarotGoal != 0
-        ? userData.monthlyBakarot / userData.bakarotGoal
-        : 0;
-    double tikufimPer = userData.tikufimGoal != 0
-        ? userData.monthlyTikufim / userData.tikufimGoal
-        : 0;
-    double knasotPer = userData.knasotGoal != 0
-        ? userData.monthlyKnasot / userData.knasotGoal
-        : 0;
+    if (!history) {
+      monthlyBakarot = userData.monthlyBakarot;
+      monthlyTikufim = userData.monthlyTikufim;
+      monthlyKnasot = userData.monthlyKnasot;
+      bakarotGoal = userData.bakarotGoal;
+      tikufimGoal = userData.tikufimGoal;
+      knasotGoal = userData.knasotGoal;
+    }
+    double bakarotPer = bakarotGoal != 0 ? monthlyBakarot / bakarotGoal : 0;
+    double tikufimPer = tikufimGoal != 0 ? monthlyTikufim / tikufimGoal : 0;
+    double knasotPer = knasotGoal != 0 ? monthlyKnasot / knasotGoal : 0;
     if (bakarotPer > 1.0) {
       bakarotPer = 1.0;
     }
@@ -97,12 +112,12 @@ class Data extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        buildDataTile(Icons.directions_bus, 'בקרות:', userData.monthlyBakarot,
-            userData.bakarotGoal, bakarotPer, context),
+        buildDataTile(Icons.directions_bus, 'בקרות:', monthlyBakarot,
+            bakarotGoal, bakarotPer, context),
         buildDataTile(Icons.confirmation_num_rounded, 'תיקופים:',
-            userData.monthlyTikufim, userData.tikufimGoal, tikufimPer, context),
-        buildDataTile(Icons.my_location, 'קנסות:', userData.monthlyKnasot,
-            userData.knasotGoal, knasotPer, context),
+            monthlyTikufim, tikufimGoal, tikufimPer, context),
+        buildDataTile(Icons.my_location, 'קנסות:', monthlyKnasot, knasotGoal,
+            knasotPer, context),
       ],
     );
   }

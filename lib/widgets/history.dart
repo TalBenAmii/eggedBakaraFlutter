@@ -72,7 +72,12 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
       firstDate: DateTime(DateTime.now().year),
       lastDate: DateTime(DateTime.now().year + 1, 1, 0),
       onDateSelected: (date) {
-        int monthlyBakarot = 0, monthlyTikufim = 0, monthlyKnasot = 0;
+        int monthlyBakarot = 0,
+            monthlyTikufim = 0,
+            monthlyKnasot = 0,
+            bakarotGoal = 0,
+            tikufimGoal = 0,
+            knasotGoal = 0;
 
         if (monthGoal) {
           if (_userData.history[DateFormat.yMMMd()
@@ -90,9 +95,21 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
                 .history[DateFormat.yMMMd()
                     .format(DateTime(date.year, date.month, 1))]
                 .monthlyKnasot;
+            bakarotGoal = _userData
+                .history[DateFormat.yMMMd()
+                    .format(DateTime(date.year, date.month, 1))]
+                .bakarotGoal;
+            tikufimGoal = _userData
+                .history[DateFormat.yMMMd()
+                    .format(DateTime(date.year, date.month, 1))]
+                .tikufimGoal;
+            knasotGoal = _userData
+                .history[DateFormat.yMMMd()
+                    .format(DateTime(date.year, date.month, 1))]
+                .knasotGoal;
           }
-          _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot,
-              monthsName[date.month - 1], true);
+          _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot, bakarotGoal,
+              tikufimGoal, knasotGoal, monthsName[date.month - 1]);
         } else {
           if (_userData.history[DateFormat.yMd().format(date)] != null) {
             monthlyBakarot =
@@ -102,8 +119,8 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
             monthlyKnasot =
                 _userData.history[DateFormat.yMd().format(date)].monthlyKnasot;
           }
-          _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot,
-              DateFormat('dd/MM/yyyy').format(date), false);
+          _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot, bakarotGoal,
+              tikufimGoal, knasotGoal, DateFormat('dd/MM/yyyy').format(date));
         }
       },
       leftMargin: 20,
@@ -132,9 +149,8 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
   }
 
   void _showData(int monthlyBakarot, int monthlyTikufim, int monthlyKnasot,
-      String chosen, bool monthGoal) {
+      int bakarotGoal, int tikufimGoal, int knasotGoal, String chosen) {
     bool isHistory = true;
-    String append = monthGoal ? 'סה"כ' : '';
     if (monthlyBakarot == 0 && monthlyTikufim == 0 && monthlyKnasot == 0) {
       isHistory = false;
     }
@@ -162,6 +178,12 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
                 if (isHistory)
                   Data(
                     history: true,
+                    monthlyBakarot: monthlyBakarot,
+                    monthlyTikufim: monthlyTikufim,
+                    monthlyKnasot: monthlyKnasot,
+                    bakarotGoal: bakarotGoal,
+                    tikufimGoal: tikufimGoal,
+                    knasotGoal: knasotGoal,
                   ),
                 SizedBox(
                   height: 15,

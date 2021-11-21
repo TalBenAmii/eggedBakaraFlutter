@@ -1,16 +1,16 @@
 class HistoryData {
-  int monthlyBakarot = 0,
-      monthlyTikufim = 0,
-      monthlyKnasot = 0,
-      bakarotGoal = 0,
-      tikufimGoal = 0,
-      knasotGoal = 0;
+  int monthlyBakarot,
+      monthlyTikufim,
+      monthlyKnasot,
+      bakarotGoal,
+      tikufimGoal,
+      knasotGoal;
   HistoryData({
-    this.monthlyBakarot,
-    this.monthlyTikufim,
-    this.monthlyKnasot,
-    this.bakarotGoal,
-    this.tikufimGoal,
-    this.knasotGoal,
+    this.monthlyBakarot = 0,
+    this.monthlyTikufim = 0,
+    this.monthlyKnasot = 0,
+    this.bakarotGoal = 0,
+    this.tikufimGoal = 0,
+    this.knasotGoal = 0,
   });
 }
