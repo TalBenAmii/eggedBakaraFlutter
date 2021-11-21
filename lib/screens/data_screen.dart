@@ -113,6 +113,9 @@ class _DataScreenState extends State<DataScreen>
             'bakarotGoal': value.bakarotGoal,
             'tikufimGoal': value.tikufimGoal,
             'knasotGoal': value.knasotGoal,
+            'bakarotAdded': value.bakarotAdded,
+            'tikufimAdded': value.tikufimAdded,
+            'knasotAdded': value.knasotAdded,
           };
         }
         return null;

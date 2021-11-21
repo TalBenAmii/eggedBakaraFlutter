@@ -18,22 +18,42 @@ class UserData with ChangeNotifier {
     this.monthlyBakarot += monthlyBakarot;
     this.monthlyTikufim += monthlyTikufim;
     this.monthlyKnasot += monthlyKnasot;
-    this.history[DateFormat.yMd().format(DateTime(2021, 11, 22))] = HistoryData(
-      monthlyBakarot: this.monthlyBakarot,
-      monthlyTikufim: this.monthlyTikufim,
-      monthlyKnasot: this.monthlyKnasot,
-    );
+    if (this.history[DateFormat.yMd().format(DateTime(2021, 11, 23))] == null) {
+      this.history[DateFormat.yMd().format(DateTime(2021, 11, 23))] =
+          HistoryData(
+        monthlyBakarot: this.monthlyBakarot,
+        monthlyTikufim: this.monthlyTikufim,
+        monthlyKnasot: this.monthlyKnasot,
+      );
+    } else {
+      this
+          .history[DateFormat.yMd().format(DateTime(2021, 11, 23))]
+          .monthlyBakarot = this.monthlyBakarot;
+      this
+          .history[DateFormat.yMd().format(DateTime(2021, 11, 23))]
+          .monthlyTikufim = this.monthlyTikufim;
+      this
+          .history[DateFormat.yMd().format(DateTime(2021, 11, 23))]
+          .monthlyKnasot = this.monthlyKnasot;
+    }
+
+    this
+        .history[DateFormat.yMd().format(DateTime(2021, 11, 23))]
+        .updateChangedData(monthlyBakarot, monthlyTikufim, monthlyKnasot);
+
     this.history[DateFormat.yMMMd()
             .format(DateTime(DateTime.now().year, DateTime.now().month, 1))] =
         HistoryData(
       monthlyBakarot: this.monthlyBakarot,
       monthlyTikufim: this.monthlyTikufim,
       monthlyKnasot: this.monthlyKnasot,
+      bakarotGoal: this.bakarotGoal,
+      tikufimGoal: this.tikufimGoal,
+      knasotGoal: this.knasotGoal,
     );
+
     notifyListeners();
   }
-
-  HistoryData getLatestHistory(int history) {}
 
   void addGoal(int bakarotGoal, int tikufimGoal, int knasotGoal) {
     this.bakarotGoal = bakarotGoal;
@@ -42,6 +62,9 @@ class UserData with ChangeNotifier {
     this.history[DateFormat.yMMMd()
             .format(DateTime(DateTime.now().year, DateTime.now().month, 1))] =
         HistoryData(
+      monthlyBakarot: this.monthlyBakarot,
+      monthlyTikufim: this.monthlyTikufim,
+      monthlyKnasot: this.monthlyKnasot,
       bakarotGoal: this.bakarotGoal,
       tikufimGoal: this.tikufimGoal,
       knasotGoal: this.knasotGoal,
@@ -76,7 +99,10 @@ class UserData with ChangeNotifier {
               monthlyKnasot: value['monthlyKnasot'],
               bakarotGoal: value['bakarotGoal'],
               tikufimGoal: value['tikufimGoal'],
-              knasotGoal: value['knasotGoal']));
+              knasotGoal: value['knasotGoal'],
+              bakarotAdded: value['bakarotAdded'],
+              tikufimAdded: value['tikufimAdded'],
+              knasotAdded: value['knasotAdded']));
     });
     monthlyBakarot = history[DateFormat.yMMMd()
                 .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]

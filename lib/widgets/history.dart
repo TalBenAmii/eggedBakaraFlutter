@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:egged_bakara/models/history_data.dart';
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/utils/constants.dart';
 import 'package:egged_bakara/widgets/calender_timeline.dart';
@@ -72,55 +73,20 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
       firstDate: DateTime(DateTime.now().year),
       lastDate: DateTime(DateTime.now().year + 1, 1, 0),
       onDateSelected: (date) {
-        int monthlyBakarot = 0,
-            monthlyTikufim = 0,
-            monthlyKnasot = 0,
-            bakarotGoal = 0,
-            tikufimGoal = 0,
-            knasotGoal = 0;
-
         if (monthGoal) {
-          if (_userData.history[DateFormat.yMMMd()
-                  .format(DateTime(date.year, date.month, 1))] !=
-              null) {
-            monthlyBakarot = _userData
-                .history[DateFormat.yMMMd()
-                    .format(DateTime(date.year, date.month, 1))]
-                .monthlyBakarot;
-            monthlyTikufim = _userData
-                .history[DateFormat.yMMMd()
-                    .format(DateTime(date.year, date.month, 1))]
-                .monthlyTikufim;
-            monthlyKnasot = _userData
-                .history[DateFormat.yMMMd()
-                    .format(DateTime(date.year, date.month, 1))]
-                .monthlyKnasot;
-            bakarotGoal = _userData
-                .history[DateFormat.yMMMd()
-                    .format(DateTime(date.year, date.month, 1))]
-                .bakarotGoal;
-            tikufimGoal = _userData
-                .history[DateFormat.yMMMd()
-                    .format(DateTime(date.year, date.month, 1))]
-                .tikufimGoal;
-            knasotGoal = _userData
-                .history[DateFormat.yMMMd()
-                    .format(DateTime(date.year, date.month, 1))]
-                .knasotGoal;
-          }
-          _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot, bakarotGoal,
-              tikufimGoal, knasotGoal, monthsName[date.month - 1]);
+          _showData(
+              _userData.history[DateFormat.yMMMd()
+                  .format(DateTime(date.year, date.month, 1))],
+              _userData.history[DateFormat.yMd().format(date)],
+              monthsName[date.month - 1],
+              true);
         } else {
-          if (_userData.history[DateFormat.yMd().format(date)] != null) {
-            monthlyBakarot =
-                _userData.history[DateFormat.yMd().format(date)].monthlyBakarot;
-            monthlyTikufim =
-                _userData.history[DateFormat.yMd().format(date)].monthlyTikufim;
-            monthlyKnasot =
-                _userData.history[DateFormat.yMd().format(date)].monthlyKnasot;
-          }
-          _showData(monthlyBakarot, monthlyTikufim, monthlyKnasot, bakarotGoal,
-              tikufimGoal, knasotGoal, DateFormat('dd/MM/yyyy').format(date));
+          _showData(
+              _userData.history[DateFormat.yMMMd()
+                  .format(DateTime(date.year, date.month, 1))],
+              _userData.history[DateFormat.yMd().format(date)],
+              DateFormat('dd/MM/yyyy').format(date),
+              false);
         }
       },
       leftMargin: 20,
@@ -148,10 +114,10 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     );
   }
 
-  void _showData(int monthlyBakarot, int monthlyTikufim, int monthlyKnasot,
-      int bakarotGoal, int tikufimGoal, int knasotGoal, String chosen) {
+  void _showData(HistoryData monthHistory, HistoryData dayHistory,
+      String chosen, bool isMonthHistory) {
     bool isHistory = true;
-    if (monthlyBakarot == 0 && monthlyTikufim == 0 && monthlyKnasot == 0) {
+    if (dayHistory == null && !isMonthHistory) {
       isHistory = false;
     }
     showModalBottomSheet(
@@ -178,12 +144,9 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
                 if (isHistory)
                   Data(
                     history: true,
-                    monthlyBakarot: monthlyBakarot,
-                    monthlyTikufim: monthlyTikufim,
-                    monthlyKnasot: monthlyKnasot,
-                    bakarotGoal: bakarotGoal,
-                    tikufimGoal: tikufimGoal,
-                    knasotGoal: knasotGoal,
+                    monthHistory: monthHistory,
+                    dayHistory: dayHistory,
+                    isMonthHistory: isMonthHistory,
                   ),
                 SizedBox(
                   height: 15,

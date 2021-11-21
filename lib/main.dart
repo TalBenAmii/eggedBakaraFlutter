@@ -10,12 +10,14 @@ import 'package:provider/provider.dart';
 import 'screens/data_screen.dart';
 
 //todo: arrange code
+//todo: add docs
 //todo: make a dragable stats, make airplane animation in stats
 //todo: make a more detailed history and improve appearance (listtile with icons in bakarot..)
 //todo: make plus icon with green labels in history + progressbar
 //todo: make no history icon
 //todo: add blurry effect in history
 //todo: dont count up when adding data / count from previous data to the current data
+//todo: fix history sizing+size down in historydata
 
 void main() {
   runApp(MyApp());

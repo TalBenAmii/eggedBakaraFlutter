@@ -1,4 +1,5 @@
 import 'package:countup/countup.dart';
+import 'package:egged_bakara/models/history_data.dart';
 import 'package:egged_bakara/utils/constants.dart';
 import 'package:egged_bakara/widgets/history.dart';
 import 'package:flutter/material.dart';
@@ -9,22 +10,24 @@ import '../models/user_data.dart';
 
 class Data extends StatelessWidget {
   int loadTime = 1500;
-  bool history;
+  bool history, isMonthHistory;
   UserData userData;
+  HistoryData dayHistory, monthHistory;
+
   int monthlyBakarot,
       monthlyTikufim,
       monthlyKnasot,
       bakarotGoal,
       tikufimGoal,
-      knasotGoal;
+      knasotGoal,
+      bakarotAdded,
+      tikufimAdded,
+      knasotAdded;
   Data(
       {this.history = false,
-      this.monthlyBakarot = 0,
-      this.monthlyTikufim = 0,
-      this.monthlyKnasot = 0,
-      this.bakarotGoal = 0,
-      this.tikufimGoal = 0,
-      this.knasotGoal = 0});
+      this.dayHistory,
+      this.monthHistory,
+      this.isMonthHistory});
 
   Widget _progressBar(double per, BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -57,7 +60,7 @@ class Data extends StatelessWidget {
   }
 
   Widget buildDataTile(IconData icon, String data, int current, int goal,
-      double per, BuildContext context) {
+      int added, double per, BuildContext context) {
     int left = goal - current < 0 ? 0 : goal - current;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 3),
@@ -71,6 +74,15 @@ class Data extends StatelessWidget {
                   color: Theme.of(context).accentColor,
                 ),
               ),
+              trailing: history && added != 0 && added != null
+                  ? Text(
+                      '+' + added.toString(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline3
+                          .copyWith(color: Colors.green),
+                    )
+                  : Text(''),
               title: countUpAnimation(
                   current.toDouble(), '$data ', '/${goal}', context),
               subtitle: Text(
@@ -86,7 +98,24 @@ class Data extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     userData = Provider.of<UserData>(context);
-    if (!history) {
+    if (history) {
+      if (isMonthHistory) {
+        monthlyBakarot = monthHistory.monthlyBakarot;
+        monthlyTikufim = monthHistory.monthlyTikufim;
+        monthlyKnasot = monthHistory.monthlyKnasot;
+      } else {
+        monthlyBakarot = dayHistory.monthlyBakarot;
+        monthlyTikufim = dayHistory.monthlyTikufim;
+        monthlyKnasot = dayHistory.monthlyKnasot;
+        bakarotAdded = dayHistory.bakarotAdded;
+        tikufimAdded = dayHistory.tikufimAdded;
+        knasotAdded = dayHistory.knasotAdded;
+      }
+
+      bakarotGoal = monthHistory.bakarotGoal;
+      tikufimGoal = monthHistory.tikufimGoal;
+      knasotGoal = monthHistory.knasotGoal;
+    } else {
       monthlyBakarot = userData.monthlyBakarot;
       monthlyTikufim = userData.monthlyTikufim;
       monthlyKnasot = userData.monthlyKnasot;
@@ -113,11 +142,11 @@ class Data extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         buildDataTile(Icons.directions_bus, 'בקרות:', monthlyBakarot,
-            bakarotGoal, bakarotPer, context),
+            bakarotGoal, bakarotAdded, bakarotPer, context),
         buildDataTile(Icons.confirmation_num_rounded, 'תיקופים:',
-            monthlyTikufim, tikufimGoal, tikufimPer, context),
+            monthlyTikufim, tikufimGoal, tikufimAdded, tikufimPer, context),
         buildDataTile(Icons.my_location, 'קנסות:', monthlyKnasot, knasotGoal,
-            knasotPer, context),
+            knasotAdded, knasotPer, context),
       ],
     );
   }
