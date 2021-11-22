@@ -523,8 +523,8 @@ class MonthName extends StatelessWidget {
                 : this.isSelected
                     ? 26
                     : 20,
-            color: this.isSelected
-                ? Theme.of(context).accentColor
+            color: this.isSelected && !initMonth
+                ? Colors.white
                 : color ?? Colors.black87,
             fontWeight: this.isSelected ? FontWeight.bold : FontWeight.w300,
           ),

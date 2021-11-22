@@ -39,6 +39,7 @@ class _DataScreenState extends State<DataScreen>
     _userData = Provider.of<UserData>(context, listen: false);
     _controller = AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
+
     super.initState();
   }
 
@@ -48,8 +49,8 @@ class _DataScreenState extends State<DataScreen>
     super.dispose();
   }
 
-  Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
-    final double height = constraints.biggest.height;
+  Animation<RelativeRect> _getPanelAnimation() {
+    final double height = HEIGHT;
     final double top = height - _PANEL_HEADER_HEIGHT;
     final double bottom = -_PANEL_HEADER_HEIGHT;
     return RelativeRectTween(
@@ -58,8 +59,8 @@ class _DataScreenState extends State<DataScreen>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
   }
 
-  Widget _buildStack(BuildContext context, BoxConstraints constraints) {
-    final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
+  Widget _buildStack() {
+    final Animation<RelativeRect> animation = _getPanelAnimation();
     final ThemeData theme = Theme.of(context);
     return Container(
       color: theme.primaryColor,
@@ -71,8 +72,8 @@ class _DataScreenState extends State<DataScreen>
             rect: animation,
             child: Material(
               borderRadius: const BorderRadius.only(
-                  topLeft: const Radius.circular(16.0),
-                  topRight: const Radius.circular(16.0)),
+                  topLeft: const Radius.circular(20.0),
+                  topRight: const Radius.circular(20.0)),
               elevation: 12.0,
               child: SingleChildScrollView(
                 child: Container(
@@ -82,7 +83,7 @@ class _DataScreenState extends State<DataScreen>
                     Data(),
                     History(),
                     Spacer(),
-                    BottomButton(_updateData, _userData),
+                    BottomButton(_saveData, _userData),
                   ]),
                 ),
               ),
@@ -101,7 +102,7 @@ class _DataScreenState extends State<DataScreen>
     } catch (error) {}
   }
 
-  void _updateData() async {
+  void _saveData() async {
     final Map<String, Map<String, dynamic>> history = new Map();
     _userData.history.forEach((key, value) {
       history.putIfAbsent(key, () {
@@ -154,7 +155,7 @@ class _DataScreenState extends State<DataScreen>
 
   @override
   Widget build(BuildContext context) {
-    _PANEL_HEADER_HEIGHT = HEIGHT * 0.55;
+    _PANEL_HEADER_HEIGHT = HEIGHT * 0.67;
     AnimatedIconButton animatedIconButton = buildAnimatedButton();
     return Scaffold(
       appBar: AppBar(
@@ -169,7 +170,7 @@ class _DataScreenState extends State<DataScreen>
         future: _loadData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return LayoutBuilder(builder: _buildStack);
+            return _buildStack();
           }
           return Center(child: CircularProgressIndicator());
         },

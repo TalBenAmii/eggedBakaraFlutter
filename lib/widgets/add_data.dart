@@ -3,7 +3,6 @@ import 'package:egged_bakara/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/user_data.dart';
-import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/services.dart';
 
 UserData _userData;
@@ -65,7 +64,9 @@ class _AddDataState extends State<AddData> {
               .headline5
               .copyWith(color: Colors.grey.shade700),
           hintTextDirection: TextDirection.rtl,
-          border: OutlineInputBorder()),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          )),
       controller: controller,
       keyboardType: TextInputType.number,
       inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
@@ -75,6 +76,7 @@ class _AddDataState extends State<AddData> {
   @override
   Widget build(BuildContext context) {
     _userData = Provider.of<UserData>(context, listen: false);
+
     return SingleChildScrollView(
       child: Container(
         margin: EdgeInsets.all(10),
@@ -101,6 +103,8 @@ class _AddDataState extends State<AddData> {
             ),
             // ignore: deprecated_member_use
             RaisedButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
               onPressed: () {
                 _submit();
               },

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:egged_bakara/icons/no_history.dart';
 import 'package:egged_bakara/models/history_data.dart';
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/utils/constants.dart';
@@ -9,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 bool canBePressed = true;
 
@@ -27,6 +30,8 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
   bool init = true;
   @override
   void initState() {
+    _loadData();
+
     _monthController = AnimationController(
       vsync: this,
       duration: Duration(
@@ -41,6 +46,26 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     );
 
     super.initState();
+  }
+
+  Future<void> _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    dayExpanded = prefs.getBool("dayExpanded") ?? false;
+    monthExpanded = prefs.getBool("monthExpanded") ?? false;
+    if (dayExpanded) {
+      dayExpanded = !dayExpanded;
+      expandUnexpand(false);
+    }
+    if (monthExpanded) {
+      monthExpanded = !monthExpanded;
+      expandUnexpand(true);
+    }
+  }
+
+  Future<void> saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("dayExpanded", dayExpanded);
+    prefs.setBool("monthExpanded", monthExpanded);
   }
 
   @override
@@ -117,30 +142,62 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
   void _showData(HistoryData monthHistory, HistoryData dayHistory,
       String chosen, bool isMonthHistory) {
     bool isHistory = true;
-    if (dayHistory == null && !isMonthHistory) {
+    if (dayHistory == null && !isMonthHistory ||
+        (isMonthHistory && monthHistory == null)) {
       isHistory = false;
     }
     showModalBottomSheet(
+        backgroundColor: Colors.transparent,
         context: context,
         isScrollControlled: true,
         builder: (ctx) {
           return Container(
-            margin: EdgeInsets.all(5),
-            padding: EdgeInsets.all(5),
+            margin: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: Color(0xFFD1FFBD),
+                borderRadius: BorderRadius.circular(30)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  chosen + ':',
-                  style: Theme.of(ctx).textTheme.headline4.copyWith(
-                      fontSize: 50, decoration: TextDecoration.underline),
+                Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          width: 1.5,
+                          color: Colors.green.shade800.withAlpha(170)),
+                      borderRadius: BorderRadius.circular(20)),
+                  margin: const EdgeInsets.only(top: 8.0, right: 20, left: 20),
+                  child: ListTile(
+                    dense: true,
+                    title: Center(
+                      child: Text(
+                        chosen,
+                        style: Theme.of(ctx)
+                            .textTheme
+                            .headline1
+                            .copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.history,
+                      color: Colors.transparent,
+                      size: 30,
+                    ),
+                    leading: Icon(
+                      Icons.history_rounded,
+                      size: 30,
+                      color: Theme.of(ctx).accentColor,
+                    ),
+                  ),
                 ),
                 if (!isHistory)
-                  Text('אין הסטוריה',
-                      style: Theme.of(ctx).textTheme.headline4.copyWith(
-                            fontSize: 45,
-                          )),
+                  Container(
+                    height: 300,
+                    child: Center(
+                      child: Icon(NoHistory.no_history,
+                          size: 150, color: Colors.black),
+                    ),
+                  ),
                 if (isHistory)
                   Data(
                     history: true,
@@ -167,7 +224,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     }
   }
 
-  void expandUnexpand(bool monthCalender) {
+  Future<void> expandUnexpand(bool monthCalender) async {
     if (monthCalender) {
       if (!monthExpanded && dayExpanded) {
         Future.delayed(const Duration(milliseconds: 250), () {
@@ -224,6 +281,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
         });
       }
     }
+    saveData();
   }
 
   void toggleCanBePressed() {
@@ -236,22 +294,55 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
   }
 
   Widget build(BuildContext context) {
-    if (init) {
-      _userData = Provider.of<UserData>(context);
-      _monthCalender = _generateMonthCalender();
-      _dayCalender = _generateDayCalender();
-    }
     Provider.of<UserData>(context).addListener(() {
       _monthCalender = _generateMonthCalender();
       _dayCalender = _generateDayCalender();
     });
-    init = false;
-    return Column(children: [
-      HistorySection(_monthCalender, 'היסטורית חודשים', expandUnexpand,
-          HEIGHT * 0.055, monthExpanded, _monthController, toggleCanBePressed),
-      HistorySection(_dayCalender, 'היסטורית ימים', expandUnexpand,
-          HEIGHT * 0.156, dayExpanded, _dayContoller, toggleCanBePressed)
-    ]);
+    if (init) {
+      init = false;
+      _userData = Provider.of<UserData>(context);
+      _monthCalender = _generateMonthCalender();
+      _dayCalender = _generateDayCalender();
+      return FutureBuilder(
+        future: _loadData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Column(children: [
+              HistorySection(
+                  _monthCalender,
+                  'היסטורית חודשים',
+                  expandUnexpand,
+                  HEIGHT * 0.055,
+                  monthExpanded,
+                  _monthController,
+                  toggleCanBePressed),
+              HistorySection(
+                  _dayCalender,
+                  'היסטורית ימים',
+                  expandUnexpand,
+                  HEIGHT * 0.156,
+                  dayExpanded,
+                  _dayContoller,
+                  toggleCanBePressed)
+            ]);
+          }
+          return CircularProgressIndicator();
+        },
+      );
+    } else {
+      return Column(children: [
+        HistorySection(
+            _monthCalender,
+            'היסטורית חודשים',
+            expandUnexpand,
+            HEIGHT * 0.055,
+            monthExpanded,
+            _monthController,
+            toggleCanBePressed),
+        HistorySection(_dayCalender, 'היסטורית ימים', expandUnexpand,
+            HEIGHT * 0.156, dayExpanded, _dayContoller, toggleCanBePressed)
+      ]);
+    }
   }
 }
 
@@ -281,7 +372,8 @@ class HistorySection extends StatelessWidget {
         margin: EdgeInsets.only(
             top: HEIGHT * 0.02, left: WIDTH * 0.025, right: WIDTH * 0.025),
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.green.shade800.withAlpha(170)),
+            border: Border.all(
+                color: Colors.green.shade800.withAlpha(170), width: 1.5),
             borderRadius: BorderRadius.circular(20)),
         child: InkWell(
           splashColor: Colors.green,
@@ -298,9 +390,15 @@ class HistorySection extends StatelessWidget {
                 }
               : null,
           child: ListTile(
+            leading: Icon(
+              Icons.history,
+              size: 35,
+              color: Theme.of(context).accentColor,
+            ),
             title: Text(
               text,
-              style: Theme.of(context).textTheme.headline2,
+              style:
+                  Theme.of(context).textTheme.headline2.copyWith(fontSize: 25),
             ),
             trailing: IconButton(
               color: Colors.green.shade800,

@@ -34,6 +34,10 @@ class _StatsState extends State<Stats> {
         saturday = value;
       }
     });
+    saveData();
+  }
+
+  Future<void> saveData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     prefs.setBool("friday", friday);
@@ -60,7 +64,7 @@ class _StatsState extends State<Stats> {
           text,
           style: Theme.of(context)
               .textTheme
-              .headline2
+              .headline3
               .copyWith(fontWeight: FontWeight.bold),
         ),
       ),

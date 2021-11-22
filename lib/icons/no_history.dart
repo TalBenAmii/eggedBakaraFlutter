@@ -15,15 +15,12 @@
 ///
 import 'package:flutter/widgets.dart';
 
-class MyFlutterApp {
-  MyFlutterApp._();
+class NoHistory {
+  NoHistory._();
 
-  static const _kFontFam = 'MyFlutterApp';
-
+  static const _kFontFam = 'NoHistory';
   static const String _kFontPkg = null;
 
-  static const IconData statistics_svgrepo_com =
+  static const IconData no_history =
       IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData stats_icon =
-      IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

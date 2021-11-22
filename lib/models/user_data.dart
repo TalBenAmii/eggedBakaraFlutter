@@ -18,27 +18,23 @@ class UserData with ChangeNotifier {
     this.monthlyBakarot += monthlyBakarot;
     this.monthlyTikufim += monthlyTikufim;
     this.monthlyKnasot += monthlyKnasot;
-    if (this.history[DateFormat.yMd().format(DateTime(2021, 11, 23))] == null) {
-      this.history[DateFormat.yMd().format(DateTime(2021, 11, 23))] =
-          HistoryData(
+    if (this.history[DateFormat.yMd().format(DateTime.now())] == null) {
+      this.history[DateFormat.yMd().format(DateTime.now())] = HistoryData(
         monthlyBakarot: this.monthlyBakarot,
         monthlyTikufim: this.monthlyTikufim,
         monthlyKnasot: this.monthlyKnasot,
       );
     } else {
-      this
-          .history[DateFormat.yMd().format(DateTime(2021, 11, 23))]
-          .monthlyBakarot = this.monthlyBakarot;
-      this
-          .history[DateFormat.yMd().format(DateTime(2021, 11, 23))]
-          .monthlyTikufim = this.monthlyTikufim;
-      this
-          .history[DateFormat.yMd().format(DateTime(2021, 11, 23))]
-          .monthlyKnasot = this.monthlyKnasot;
+      this.history[DateFormat.yMd().format(DateTime.now())].monthlyBakarot =
+          this.monthlyBakarot;
+      this.history[DateFormat.yMd().format(DateTime.now())].monthlyTikufim =
+          this.monthlyTikufim;
+      this.history[DateFormat.yMd().format(DateTime.now())].monthlyKnasot =
+          this.monthlyKnasot;
     }
 
     this
-        .history[DateFormat.yMd().format(DateTime(2021, 11, 23))]
+        .history[DateFormat.yMd().format(DateTime.now())]
         .updateChangedData(monthlyBakarot, monthlyTikufim, monthlyKnasot);
 
     this.history[DateFormat.yMMMd()
@@ -82,7 +78,14 @@ class UserData with ChangeNotifier {
       }
     }
     history[DateFormat.yMMMd()
-        .format(DateTime(DateTime.now().year, DateTime.now().month, 1))] = null;
+            .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+        .monthlyBakarot = 0;
+    history[DateFormat.yMMMd()
+            .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+        .monthlyTikufim = 0;
+    history[DateFormat.yMMMd()
+            .format(DateTime(DateTime.now().year, DateTime.now().month, 1))]
+        .monthlyKnasot = 0;
     monthlyBakarot = 0;
     monthlyTikufim = 0;
     monthlyKnasot = 0;

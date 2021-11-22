@@ -11,7 +11,7 @@ class MyTheme {
       primarySwatch: Colors.green,
       // ignore: deprecated_member_use
       accentColor: Colors.green.shade800,
-      canvasColor: Color(0xFFDEFFD3),
+      canvasColor: Color(0xFFD1FFBD),
       iconTheme: IconThemeData(color: Colors.white),
       textTheme:
           WIDTH < 400 && HEIGHT < 700 ? TEXT_THEME_SMALL : TEXT_THEME_DEFAULT,

@@ -15,6 +15,8 @@ class BlurryDialog extends StatelessWidget {
     return BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20))),
           title: new Text(
             title,
             style: Theme.of(context)
@@ -29,6 +31,8 @@ class BlurryDialog extends StatelessWidget {
           actions: <Widget>[
             // ignore: deprecated_member_use
             new FlatButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
               child: Text(
                 "בטל",
                 style: Theme.of(context).textTheme.headline5.copyWith(
@@ -41,6 +45,8 @@ class BlurryDialog extends StatelessWidget {
             ),
             // ignore: deprecated_member_use
             new FlatButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
               child: new Text(
                 "אפס",
                 style: Theme.of(context).textTheme.headline5.copyWith(

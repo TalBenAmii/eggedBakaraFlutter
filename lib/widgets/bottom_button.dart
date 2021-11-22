@@ -13,17 +13,29 @@ class BottomButton extends StatelessWidget {
 
   void _openAddTransaction(BuildContext ctx, bool addGoal) {
     showModalBottomSheet(
+        backgroundColor: Colors.transparent,
         context: ctx,
         builder: (_) {
-          return AddData(addGoal, _updateData);
+          return Container(
+              decoration: BoxDecoration(
+                  color: Color(0xFFD1FFBD),
+                  borderRadius: BorderRadius.circular(25)),
+              margin: EdgeInsets.all(10),
+              child: AddData(addGoal, _updateData));
         });
   }
 
   void _openOptions(BuildContext ctx) {
     showModalBottomSheet(
+        backgroundColor: Colors.transparent,
         context: ctx,
         builder: (_) {
-          return Options(_openAddTransaction, _showDialog);
+          return Container(
+              decoration: BoxDecoration(
+                  color: Color(0xFFD1FFBD),
+                  borderRadius: BorderRadius.circular(25)),
+              margin: EdgeInsets.all(10),
+              child: Options(_openAddTransaction, _showDialog));
         });
   }
 

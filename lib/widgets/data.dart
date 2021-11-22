@@ -9,10 +9,12 @@ import 'package:provider/provider.dart';
 import '../models/user_data.dart';
 
 class Data extends StatelessWidget {
-  int loadTime = 1500;
+  int loadTime = 1500, lastBakarot = 0, lastTikufim = 0, lastKnasot = 0;
+
   bool history, isMonthHistory;
   UserData userData;
   HistoryData dayHistory, monthHistory;
+  double bakarotPer, tikufimPer, knasotPer;
 
   int monthlyBakarot,
       monthlyTikufim,
@@ -32,14 +34,17 @@ class Data extends StatelessWidget {
   Widget _progressBar(double per, BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       LinearPercentIndicator(
-        width: WIDTH - 50,
-        animation: true,
-        lineHeight: 30.0,
+        width: history ? WIDTH - 80 : WIDTH - 50,
+        animation: history ? false : true,
+        animateFromLastPercent: true,
+        lineHeight: history ? 25.0 : 30.0,
         animationDuration: loadTime,
         percent: per,
         center: Text(
           (per * 100).toStringAsFixed(2) + '%',
-          style: Theme.of(context).textTheme.headline3,
+          style: history
+              ? Theme.of(context).textTheme.headline4
+              : Theme.of(context).textTheme.headline3,
         ),
         linearStrokeCap: LinearStrokeCap.roundAll,
         progressColor: Colors.green,
@@ -47,20 +52,34 @@ class Data extends StatelessWidget {
     ]);
   }
 
-  Countup countUpAnimation(
-      double end, String prefix, String suffix, BuildContext context) {
+  Widget countUpAnimation(double start, double end, String prefix,
+      String suffix, BuildContext context) {
+    if (history) {
+      start = end;
+    }
     return Countup(
-        begin: 0,
-        prefix: prefix,
-        suffix: suffix,
-        end: end,
-        duration: Duration(seconds: loadTime ~/ 1000),
-        separator: ',',
-        style: Theme.of(context).textTheme.headline1);
+      begin: start,
+      maxLines: 1,
+      softWrap: false,
+      prefix: prefix,
+      suffix: suffix,
+      end: end,
+      duration: Duration(seconds: loadTime ~/ 1000),
+      separator: ',',
+      style: history
+          ? Theme.of(context).textTheme.headline3.copyWith(fontSize: 24)
+          : Theme.of(context).textTheme.headline1,
+    );
   }
 
-  Widget buildDataTile(IconData icon, String data, int current, int goal,
-      int added, double per, BuildContext context) {
+  void updateLastData() {
+    lastBakarot = monthlyBakarot;
+    lastTikufim = monthlyTikufim;
+    lastKnasot = monthlyKnasot;
+  }
+
+  Widget buildDataTile(IconData icon, String data, int start, int current,
+      int goal, int added, double per, BuildContext context) {
     int left = goal - current < 0 ? 0 : goal - current;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 3),
@@ -71,23 +90,36 @@ class Data extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: Icon(
                   icon,
+                  size: history ? 20 : 30,
                   color: Theme.of(context).accentColor,
                 ),
               ),
               trailing: history && added != 0 && added != null
-                  ? Text(
-                      '+' + added.toString(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline3
-                          .copyWith(color: Colors.green),
+                  ? Container(
+                      width: 40,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          added.toString() + '+',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline3
+                              .copyWith(color: Colors.green),
+                        ),
+                      ),
                     )
                   : Text(''),
               title: countUpAnimation(
-                  current.toDouble(), '$data ', '/${goal}', context),
+                start.toDouble(),
+                current.toDouble(),
+                '$data ',
+                '/${goal}',
+                context,
+              ),
               subtitle: Text(
                 'נותרו: ${left}',
-                style: TextStyle(fontSize: 24),
+                style:
+                    history ? TextStyle(fontSize: 18) : TextStyle(fontSize: 24),
               )),
           _progressBar(per, context),
         ],
@@ -97,6 +129,8 @@ class Data extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => updateLastData());
+
     userData = Provider.of<UserData>(context);
     if (history) {
       if (isMonthHistory) {
@@ -123,9 +157,9 @@ class Data extends StatelessWidget {
       tikufimGoal = userData.tikufimGoal;
       knasotGoal = userData.knasotGoal;
     }
-    double bakarotPer = bakarotGoal != 0 ? monthlyBakarot / bakarotGoal : 0;
-    double tikufimPer = tikufimGoal != 0 ? monthlyTikufim / tikufimGoal : 0;
-    double knasotPer = knasotGoal != 0 ? monthlyKnasot / knasotGoal : 0;
+    bakarotPer = bakarotGoal != 0 ? monthlyBakarot / bakarotGoal : 0;
+    tikufimPer = tikufimGoal != 0 ? monthlyTikufim / tikufimGoal : 0;
+    knasotPer = knasotGoal != 0 ? monthlyKnasot / knasotGoal : 0;
     if (bakarotPer > 1.0) {
       bakarotPer = 1.0;
     }
@@ -141,12 +175,12 @@ class Data extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        buildDataTile(Icons.directions_bus, 'בקרות:', monthlyBakarot,
-            bakarotGoal, bakarotAdded, bakarotPer, context),
-        buildDataTile(Icons.confirmation_num_rounded, 'תיקופים:',
+        buildDataTile(Icons.directions_bus, 'בקרות:', lastBakarot,
+            monthlyBakarot, bakarotGoal, bakarotAdded, bakarotPer, context),
+        buildDataTile(Icons.confirmation_num_rounded, 'תיקופים:', lastTikufim,
             monthlyTikufim, tikufimGoal, tikufimAdded, tikufimPer, context),
-        buildDataTile(Icons.my_location, 'קנסות:', monthlyKnasot, knasotGoal,
-            knasotAdded, knasotPer, context),
+        buildDataTile(Icons.my_location, 'קנסות:', lastKnasot, monthlyKnasot,
+            knasotGoal, knasotAdded, knasotPer, context),
       ],
     );
   }

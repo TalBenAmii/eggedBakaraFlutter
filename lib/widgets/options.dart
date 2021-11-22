@@ -13,12 +13,17 @@ class Options extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)),
+            color: Color(0xFFD1FFBD),
             child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)),
               onTap: () {
                 Navigator.of(context).pop();
                 _openAddTransaction(context, false);
               },
-              title: new Text(
+              title: Text(
                 "הוסף הישג יומי",
                 style: Theme.of(context).textTheme.headline4,
               ),
@@ -30,16 +35,22 @@ class Options extends StatelessWidget {
             ),
           ),
           Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)),
+            color: Color(0xFFD1FFBD),
             child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)),
               onTap: () {
                 Navigator.of(context).pop();
                 _openAddTransaction(context, true);
               },
-              title: new Text(
+              title: Text(
                 "הוסף מטרה חודשית",
                 style: Theme.of(context).textTheme.headline4,
               ),
-              leading: new Icon(
+              leading: Icon(
                 Icons.flag,
                 color: Colors.black,
               ),
@@ -47,16 +58,22 @@ class Options extends StatelessWidget {
             ),
           ),
           Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)),
+            color: Color(0xFFD1FFBD),
             child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)),
               onTap: () {
                 Navigator.of(context).pop();
                 _showDialog(context);
               },
-              title: new Text(
+              title: Text(
                 "מחק את ההישגים",
                 style: Theme.of(context).textTheme.headline4,
               ),
-              leading: new Icon(
+              leading: Icon(
                 Icons.delete,
                 color: Colors.black,
               ),
