@@ -305,9 +305,9 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     }
     return Column(children: [
       HistorySection(_monthCalender, 'היסטורית חודשים', expandUnexpand,
-          HEIGHT * 0.055, monthExpanded, _monthController, toggleCanBePressed),
+          HEIGHT * 0.06, monthExpanded, _monthController, toggleCanBePressed),
       HistorySection(_dayCalender, 'היסטורית ימים', expandUnexpand,
-          HEIGHT * 0.156, dayExpanded, _dayContoller, toggleCanBePressed)
+          HEIGHT * 0.17, dayExpanded, _dayContoller, toggleCanBePressed)
     ]);
   }
 }
@@ -336,7 +336,7 @@ class HistorySection extends StatelessWidget {
     return Column(children: [
       Container(
         margin: EdgeInsets.only(
-            top: HEIGHT * 0.02, left: WIDTH * 0.025, right: WIDTH * 0.025),
+            top: HEIGHT * 0.01, left: WIDTH * 0.025, right: WIDTH * 0.025),
         decoration: BoxDecoration(
             border: Border.all(
                 color: Colors.green.shade800.withAlpha(170), width: 1.5),
@@ -363,8 +363,7 @@ class HistorySection extends StatelessWidget {
             ),
             title: Text(
               text,
-              style:
-                  Theme.of(context).textTheme.headline2.copyWith(fontSize: 25),
+              style: Theme.of(context).textTheme.headline3,
             ),
             trailing: IconButton(
               color: Colors.green.shade800,
