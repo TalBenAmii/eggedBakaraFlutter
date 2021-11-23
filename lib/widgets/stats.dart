@@ -5,33 +5,26 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Stats extends StatefulWidget {
-  Stats({Key key}) : super(key: key);
+  bool friday = false, saturday = false;
+
+  Stats(this.friday, this.saturday, {Key key}) : super(key: key);
 
   @override
   State<Stats> createState() => _StatsState();
 }
 
 class _StatsState extends State<Stats> {
-  bool friday = false, saturday = false;
-
   @override
   void initState() {
-    _loadData();
     super.initState();
-  }
-
-  void _loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    friday = prefs.getBool("friday") ?? false;
-    saturday = prefs.getBool("saturday") ?? false;
   }
 
   void _updateData(bool value, bool isFriday) async {
     setState(() {
       if (isFriday) {
-        friday = value;
+        widget.friday = value;
       } else {
-        saturday = value;
+        widget.saturday = value;
       }
     });
     saveData();
@@ -40,8 +33,8 @@ class _StatsState extends State<Stats> {
   Future<void> saveData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.setBool("friday", friday);
-    prefs.setBool("saturday", saturday);
+    prefs.setBool("friday", widget.friday);
+    prefs.setBool("saturday", widget.saturday);
   }
 
   Widget buildStatsText(String text, BuildContext context) {
@@ -64,7 +57,7 @@ class _StatsState extends State<Stats> {
           text,
           style: Theme.of(context)
               .textTheme
-              .headline3
+              .headline2
               .copyWith(fontWeight: FontWeight.bold),
         ),
       ),
@@ -168,7 +161,7 @@ class _StatsState extends State<Stats> {
           child: Checkbox(
             checkColor: Theme.of(context).accentColor,
             activeColor: Colors.white,
-            value: isFriday ? friday : saturday,
+            value: isFriday ? widget.friday : widget.saturday,
             onChanged: (bool value) {
               _updateData(value, isFriday);
             },
@@ -191,28 +184,27 @@ class _StatsState extends State<Stats> {
     );
   }
 
-  int getWorkingDays(DateTime from, DateTime to, bool friday, bool satuarday) {
+  int getWorkingDays(DateTime from, DateTime to) {
     int days = 0, daysFrom = from.day, daysTo = to.day;
-    for (int i = daysFrom; i < daysTo; i++) {
+    for (int i = daysFrom; i <= daysTo; i++) {
       if ((DateTime(DateTime.now().year, DateTime.now().month, i).weekday !=
                   DateTime.friday ||
-              friday) &&
+              widget.friday == true) &&
           (DateTime(DateTime.now().year, DateTime.now().month, i).weekday !=
                   DateTime.saturday ||
-              saturday)) days++;
+              widget.saturday == true)) days++;
     }
     return days;
   }
 
   @override
   Widget build(BuildContext context) {
+    widget.friday = widget.friday ?? false;
+    widget.saturday = widget.saturday ?? false;
+
     final _userData = Provider.of<UserData>(context);
-    int daysLeft = getWorkingDays(
-            DateTime.now(),
-            DateTime(DateTime.now().year, DateTime.now().month + 1, 0),
-            friday,
-            saturday) +
-        1;
+    int daysLeft = getWorkingDays(DateTime.now(),
+        DateTime(DateTime.now().year, DateTime.now().month + 1, 0));
     final bakarotLeft = _userData.bakarotGoal - _userData.monthlyBakarot < 0
         ? 0
         : _userData.bakarotGoal - _userData.monthlyBakarot;

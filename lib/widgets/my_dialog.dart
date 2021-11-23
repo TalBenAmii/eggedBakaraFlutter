@@ -13,7 +13,7 @@ class BlurryDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: AlertDialog(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20))),

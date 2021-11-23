@@ -20,13 +20,14 @@ class DataScreen extends StatefulWidget {
   _DataScreenState createState() => _DataScreenState();
 }
 
-class _DataScreenState extends State<DataScreen>
-    with SingleTickerProviderStateMixin {
+class _DataScreenState extends State<DataScreen> with TickerProviderStateMixin {
   double _PANEL_HEADER_HEIGHT;
   UserData _userData;
   AnimationController _controller;
   double width, height;
   SharedPreferences prefs;
+  bool friday, saturday, monthExpanded, dayExpanded;
+  Animation<double> _opacityAnimation;
 
   bool get _isPanelVisible {
     final AnimationStatus status = _controller.status;
@@ -40,6 +41,10 @@ class _DataScreenState extends State<DataScreen>
     _controller = AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
 
+    _opacityAnimation = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    ));
     super.initState();
   }
 
@@ -67,7 +72,8 @@ class _DataScreenState extends State<DataScreen>
       width: width,
       child: Stack(
         children: <Widget>[
-          Stats(),
+          FadeTransition(
+              opacity: _opacityAnimation, child: Stats(friday, saturday)),
           PositionedTransition(
             rect: animation,
             child: Material(
@@ -81,7 +87,7 @@ class _DataScreenState extends State<DataScreen>
                   height: HEIGHT - PADDING - kToolbarHeight,
                   child: Column(children: <Widget>[
                     Data(),
-                    History(),
+                    History(dayExpanded, monthExpanded),
                     Spacer(),
                     BottomButton(_saveData, _userData),
                   ]),
@@ -97,8 +103,15 @@ class _DataScreenState extends State<DataScreen>
   Future<void> _loadData() async {
     try {
       prefs = await SharedPreferences.getInstance();
-      Map<String, dynamic> history = jsonDecode(prefs.getString("history"));
-      _userData.fromJson(history);
+      if (prefs.getString("history") != null) {
+        Map<String, dynamic> history = jsonDecode(prefs.getString("history"));
+        _userData.fromJson(history);
+      }
+
+      friday = prefs.getBool("friday") ?? false;
+      saturday = prefs.getBool("saturday") ?? false;
+      dayExpanded = prefs.getBool("dayExpanded") ?? false;
+      monthExpanded = prefs.getBool("monthExpanded") ?? false;
     } catch (error) {}
   }
 

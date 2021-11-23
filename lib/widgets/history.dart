@@ -14,9 +14,13 @@ import 'dart:ui' as ui;
 import 'package:shared_preferences/shared_preferences.dart';
 
 bool canBePressed = true;
+bool dayExpanded, monthExpanded;
 
 class History extends StatefulWidget {
-  const History({Key key}) : super(key: key);
+  History(dayExpandedGet, monthExpandedGet, {Key key}) : super(key: key) {
+    dayExpanded = dayExpandedGet;
+    monthExpanded = monthExpandedGet;
+  }
 
   @override
   _HistoryState createState() => _HistoryState();
@@ -24,14 +28,11 @@ class History extends StatefulWidget {
 
 class _HistoryState extends State<History> with TickerProviderStateMixin {
   UserData _userData;
-  bool dayExpanded = false, monthExpanded = false;
   AnimationController _monthController, _dayContoller;
   var _monthCalender, _dayCalender;
   bool init = true;
   @override
   void initState() {
-    _loadData();
-
     _monthController = AnimationController(
       vsync: this,
       duration: Duration(
@@ -46,20 +47,6 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     );
 
     super.initState();
-  }
-
-  Future<void> _loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    dayExpanded = prefs.getBool("dayExpanded") ?? false;
-    monthExpanded = prefs.getBool("monthExpanded") ?? false;
-    if (dayExpanded) {
-      dayExpanded = !dayExpanded;
-      expandUnexpand(false);
-    }
-    if (monthExpanded) {
-      monthExpanded = !monthExpanded;
-      expandUnexpand(true);
-    }
   }
 
   Future<void> saveData() async {
@@ -224,64 +211,66 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> expandUnexpand(bool monthCalender) async {
+  void openDay() {
+    toggle(_dayContoller, dayExpanded);
+    setState(() {
+      dayExpanded = !dayExpanded;
+      saveData();
+    });
+  }
+
+  void closeDay() {
+    toggle(_dayContoller, dayExpanded);
+    Future.delayed(const Duration(milliseconds: 250), () {
+      setState(() {
+        dayExpanded = !dayExpanded;
+        saveData();
+      });
+    });
+  }
+
+  void openMonth() {
+    toggle(_monthController, monthExpanded);
+    setState(() {
+      monthExpanded = !monthExpanded;
+      saveData();
+    });
+  }
+
+  void closeMonth() {
+    toggle(_monthController, monthExpanded);
+    Future.delayed(const Duration(milliseconds: 250), () {
+      setState(() {
+        monthExpanded = !monthExpanded;
+        saveData();
+      });
+    });
+  }
+
+  void expandUnexpand(bool monthCalender) {
     if (monthCalender) {
       if (!monthExpanded && dayExpanded) {
+        closeDay();
         Future.delayed(const Duration(milliseconds: 250), () {
-          toggle(_monthController, monthExpanded);
-          setState(() {
-            monthExpanded = !monthExpanded;
-          });
-        });
-
-        toggle(_dayContoller, dayExpanded);
-        Future.delayed(const Duration(milliseconds: 250), () {
-          setState(() {
-            dayExpanded = !dayExpanded;
-          });
+          openMonth();
         });
       } else if (monthExpanded) {
-        toggle(_monthController, monthExpanded);
-        Future.delayed(const Duration(milliseconds: 250), () {
-          setState(() {
-            monthExpanded = !monthExpanded;
-          });
-        });
+        closeMonth();
       } else {
-        toggle(_monthController, monthExpanded);
-        setState(() {
-          monthExpanded = !monthExpanded;
-        });
+        openMonth();
       }
     } else {
       if (!dayExpanded && monthExpanded) {
+        closeMonth();
         Future.delayed(const Duration(milliseconds: 250), () {
-          toggle(_dayContoller, dayExpanded);
-          setState(() {
-            dayExpanded = !dayExpanded;
-          });
-        });
-        toggle(_monthController, monthExpanded);
-        Future.delayed(const Duration(milliseconds: 250), () {
-          setState(() {
-            monthExpanded = !monthExpanded;
-          });
+          openDay();
         });
       } else if (dayExpanded) {
-        toggle(_dayContoller, dayExpanded);
-        Future.delayed(const Duration(milliseconds: 250), () {
-          setState(() {
-            dayExpanded = !dayExpanded;
-          });
-        });
+        closeDay();
       } else {
-        toggle(_dayContoller, dayExpanded);
-        setState(() {
-          dayExpanded = !dayExpanded;
-        });
+        openDay();
       }
     }
-    saveData();
   }
 
   void toggleCanBePressed() {
@@ -294,55 +283,32 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
   }
 
   Widget build(BuildContext context) {
+    dayExpanded = dayExpanded ?? false;
+    monthExpanded = monthExpanded ?? false;
     Provider.of<UserData>(context).addListener(() {
       _monthCalender = _generateMonthCalender();
       _dayCalender = _generateDayCalender();
     });
     if (init) {
       init = false;
-      _userData = Provider.of<UserData>(context);
+      _userData = Provider.of<UserData>(context, listen: false);
       _monthCalender = _generateMonthCalender();
       _dayCalender = _generateDayCalender();
-      return FutureBuilder(
-        future: _loadData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Column(children: [
-              HistorySection(
-                  _monthCalender,
-                  'היסטורית חודשים',
-                  expandUnexpand,
-                  HEIGHT * 0.055,
-                  monthExpanded,
-                  _monthController,
-                  toggleCanBePressed),
-              HistorySection(
-                  _dayCalender,
-                  'היסטורית ימים',
-                  expandUnexpand,
-                  HEIGHT * 0.156,
-                  dayExpanded,
-                  _dayContoller,
-                  toggleCanBePressed)
-            ]);
-          }
-          return CircularProgressIndicator();
-        },
-      );
-    } else {
-      return Column(children: [
-        HistorySection(
-            _monthCalender,
-            'היסטורית חודשים',
-            expandUnexpand,
-            HEIGHT * 0.055,
-            monthExpanded,
-            _monthController,
-            toggleCanBePressed),
-        HistorySection(_dayCalender, 'היסטורית ימים', expandUnexpand,
-            HEIGHT * 0.156, dayExpanded, _dayContoller, toggleCanBePressed)
-      ]);
+      if (dayExpanded) {
+        dayExpanded = !dayExpanded;
+        expandUnexpand(false);
+      }
+      if (monthExpanded) {
+        monthExpanded = !monthExpanded;
+        expandUnexpand(true);
+      }
     }
+    return Column(children: [
+      HistorySection(_monthCalender, 'היסטורית חודשים', expandUnexpand,
+          HEIGHT * 0.055, monthExpanded, _monthController, toggleCanBePressed),
+      HistorySection(_dayCalender, 'היסטורית ימים', expandUnexpand,
+          HEIGHT * 0.156, dayExpanded, _dayContoller, toggleCanBePressed)
+    ]);
   }
 }
 

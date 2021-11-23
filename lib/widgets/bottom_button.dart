@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:egged_bakara/models/my_flush_bar.dart';
 import 'package:egged_bakara/models/user_data.dart';
 import 'package:egged_bakara/widgets/my_dialog.dart';
@@ -16,12 +18,14 @@ class BottomButton extends StatelessWidget {
         backgroundColor: Colors.transparent,
         context: ctx,
         builder: (_) {
-          return Container(
-              decoration: BoxDecoration(
-                  color: Color(0xFFD1FFBD),
-                  borderRadius: BorderRadius.circular(25)),
-              margin: EdgeInsets.all(10),
-              child: AddData(addGoal, _updateData));
+          return BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: Color(0xFFD1FFBD),
+                      borderRadius: BorderRadius.circular(25)),
+                  margin: EdgeInsets.all(10),
+                  child: AddData(addGoal, _updateData)));
         });
   }
 
@@ -30,12 +34,15 @@ class BottomButton extends StatelessWidget {
         backgroundColor: Colors.transparent,
         context: ctx,
         builder: (_) {
-          return Container(
-              decoration: BoxDecoration(
-                  color: Color(0xFFD1FFBD),
-                  borderRadius: BorderRadius.circular(25)),
-              margin: EdgeInsets.all(10),
-              child: Options(_openAddTransaction, _showDialog));
+          return BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: Container(
+                decoration: BoxDecoration(
+                    color: Color(0xFFD1FFBD),
+                    borderRadius: BorderRadius.circular(25)),
+                margin: EdgeInsets.all(10),
+                child: Options(_openAddTransaction, _showDialog)),
+          );
         });
   }
 

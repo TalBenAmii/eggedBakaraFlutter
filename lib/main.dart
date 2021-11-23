@@ -9,13 +9,9 @@ import 'package:provider/provider.dart';
 
 import 'screens/data_screen.dart';
 
-//todo: arrange code
-//todo: add docs
+//todo: arrange code, performance testing and docs
 //todo: make a dragable stats, make airplane animation in stats
 //todo: make plus icon with green label - progressbar
-//todo: add blurry effect in history
-//todo: make performance testing
-//todo: fix history appearing instantly without animation
 
 void main() {
   runApp(MyApp());
