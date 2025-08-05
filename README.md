@@ -1,5 +1,6 @@
 ![1638118780686](https://github.com/user-attachments/assets/1d6d8e36-c407-4441-b192-75e37dade13a)
 # Egged Bakara App
+[Release](https://github.com/TalBenAmii/eggedBakaraFlutter/releases/latest)
 
 This application provides a personal interface for conductors, enabling real-time tracking and monitoring of passenger data and ticket validations on buses.
 
